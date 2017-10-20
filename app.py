@@ -34,6 +34,10 @@ class BaseHandler(RequestHandler):
         })
         self.finish()
 
+    def options(self):
+        self.set_header('Access-Control-Allow-Origin','*')
+        self.finish()
+
     def finish_err(self, code, reason):
         self.set_header('Access-Control-Allow-Origin','*')
         self.write_json ({
