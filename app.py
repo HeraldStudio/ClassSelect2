@@ -59,6 +59,9 @@ class MainHandler(BaseHandler):
 class LoginHandler(BaseHandler):
     # 用户登录
     async def post(self):
+        # self.finish_err(404, u'选课尚未开放')
+        # return
+
         try:
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
@@ -254,11 +257,17 @@ class ExportHandler(BaseHandler):
             for selection in selections:
                 user = self.db.query(User).filter(User.uid == selection.uid).one_or_none()
                 if user:
-                    csv += str(clazz.cid) + ',' + clazz.name + ',' + user.schoolnum + ',' + user.cardnum + ',' + user.name + ',' + selection.time + '\n'
+                    csv += str(clazz.cid)   + ',' + \
+                           clazz.name       + ',' + \
+                           user.schoolnum   + ',' + \
+                           user.cardnum     + ',' + \
+                           user.name        + ',' + \
+                           selection.time   + '\n'
 
         self.set_header('Content-Type', 'text/csv')
         self.write(csv.encode('gbk'))
         self.finish()
+
 
 define("port", default=8087, help='run on the given port', type=int)
 
