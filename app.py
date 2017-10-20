@@ -254,7 +254,7 @@ class ExportHandler(BaseHandler):
             for selection in selections:
                 user = self.db.query(User).filter(User.uid == selection.uid).one_or_none()
                 if user:
-                    csv += clazz.cid + ',' + clazz.name + ',' + user.schoolnum + ',' + user.cardnum + ',' + user.name + ',' + selection.time + '\n'
+                    csv += str(clazz.cid) + ',' + clazz.name + ',' + user.schoolnum + ',' + user.cardnum + ',' + user.name + ',' + selection.time + '\n'
 
         self.set_header('Content-Type', 'text/csv')
         self.write(csv)
