@@ -22,12 +22,13 @@ class BaseHandler(RequestHandler):
 
     def on_finish(self):
         self.db.close()
+        self.set_header('Access-Control-Allow-Origin','*')
+        self.set_header('Access-Control-Allow-Methods','POST, GET, PUT, DELETE')
 
     def write_json(self, trunk):
         self.write(json.dumps(trunk, ensure_ascii=False))
 
     def finish_success(self, trunk):
-        self.set_header('Access-Control-Allow-Origin','*')
         self.write_json ({
             'content': trunk,
             'code': 200
@@ -35,12 +36,9 @@ class BaseHandler(RequestHandler):
         self.finish()
 
     def options(self):
-        self.set_header('Access-Control-Allow-Origin','*')
-        self.set_header('Access-Control-Allow-Methods','POST, GET, PUT, DELETE')
         self.finish()
 
     def finish_err(self, code, reason):
-        self.set_header('Access-Control-Allow-Origin','*')
         self.write_json ({
             'content': reason,
             'code': code
