@@ -6,6 +6,7 @@ import time
 import tornado
 import tornado.ioloop
 import tornado.options
+import tornado.web
 from sqlalchemy.orm import scoped_session, sessionmaker
 from tornado.options import define, options
 from tornado.web import RequestHandler
@@ -26,8 +27,8 @@ class BaseHandler(RequestHandler):
 
     def finish_success(self, trunk):
         self.write_json({
-            'content':  trunk,
-            'code':     200
+            'content': trunk,
+            'code': 200
         })
         self.finish()
 
@@ -40,7 +41,6 @@ class BaseHandler(RequestHandler):
 
 
 class LoginHandler(BaseHandler):
-
     # 用户登录
     async def post(self):
         try:
@@ -57,7 +57,6 @@ class LoginHandler(BaseHandler):
 
 
 class ClassSelectHandler(BaseHandler):
-
     # 静态缓存，每次运行只写一次，永不刷新
     group_groups_cache = None
 
@@ -153,7 +152,8 @@ class ClassSelectHandler(BaseHandler):
             return
 
         # 判断课类类是否选满
-        count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.ggid == clazz.ggid).distinct(Selection.gid).count()
+        count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.ggid == clazz.ggid).distinct(
+            Selection.gid).count()
         try:
             group_group = self.db.query(ClassGroupGroup).filter(ClassGroupGroup.ggid == group.ggid).one()
         except:
@@ -166,7 +166,8 @@ class ClassSelectHandler(BaseHandler):
 
         # 进行选课
         try:
-            sel = Selection(uid=user.uid, cid=clazz.cid, gid=clazz.gid, ggid=group.ggid, time=time.strftime('%Y-%m-%d %X', time.localtime(time.time())))
+            sel = Selection(uid=user.uid, cid=clazz.cid, gid=clazz.gid, ggid=group.ggid,
+                            time=time.strftime('%Y-%m-%d %X', time.localtime(time.time())))
             self.db.add(sel)
 
             # 保存日志
@@ -219,11 +220,12 @@ class ClassSelectHandler(BaseHandler):
 
 define("port", default=8080, help="run on the given port", type=int)
 
+
 class Application(tornado.web.Application):
     def __init__(self):
         tornado.web.Application.__init__(self, [
-            (r'/login', LoginHandler), # POST
-            (r'/class', ClassSelectHandler) # GET, PUT, DELETE
+            (r'/login', LoginHandler),  # POST
+            (r'/class', ClassSelectHandler)  # GET, PUT, DELETE
         ], debug=True)
         self.db = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=True, expire_on_commit=False))
 
