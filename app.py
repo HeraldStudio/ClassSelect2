@@ -125,7 +125,7 @@ class ClassSelectHandler(BaseHandler):
 
     async def post(self):
         # 取课程参数
-        cid = self.get_argument('cid')
+        cid = int(self.get_argument('cid'))
 
         try:
             # 取用户登录信息
@@ -199,7 +199,7 @@ class ClassSelectHandler(BaseHandler):
 
     async def delete(self):
         # 取课程参数
-        cid = self.get_argument('cid')
+        cid = int(self.get_argument('cid'))
 
         try:
             # 取用户登录信息
