@@ -175,7 +175,7 @@ class ClassSelectHandler(BaseHandler):
 
         # 判断该课是否满员
         count = self.db.query(Selection).filter(Selection.cid == clazz.cid).count()
-        if 0 < clazz.max_select <= count:
+        if 0 < clazz.capacity <= count:
             self.finish_err(409, u'课程名额已满')
             return
 
