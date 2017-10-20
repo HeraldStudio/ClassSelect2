@@ -42,7 +42,7 @@ class Selection(Base):
     cid = Column(Integer, nullable=False)
     gid = Column(Integer, nullable=False)
     ggid = Column(Integer, nullable=True)
-    time = Column(String, nullable=False)
+    time = Column(String(256), nullable=False)
 
 class Log(Base):
     __tablename__ = 'log'
