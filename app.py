@@ -68,8 +68,23 @@ class LoginHandler(BaseHandler):
 
 class ClassSelectHandler(BaseHandler):
 
+    @property
+    async def user_info(self):
+        token = self.get_argument('token')
+        user = self.db.query(User).filter(User.token == token, User.token != '').one()
+        return user
+
     # 列举课程
     async def get(self):
+
+        try:
+            # 取用户登录信息
+            user = await self.user_info
+        except:
+            self.db.rollback()
+            self.finish_err(403, u'登录无效或已过期，请重新登录')
+            return
+
         try:
             group_groups_json = []
             group_groups = self.db.query(ClassGroupGroup).all()
@@ -94,7 +109,7 @@ class ClassSelectHandler(BaseHandler):
                             'pic': clazz.pic,
                             'capacity': clazz.capacity,
                             'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
-                            'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid, Selection.uid == clazz.uid).count() > 0
+                            'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid, Selection.uid == user.uid).count() > 0
                         } for clazz in classes]
                     }
                     groups_json.append(group_json)
@@ -107,12 +122,6 @@ class ClassSelectHandler(BaseHandler):
             traceback.print_exc(e)
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
-
-    @property
-    async def user_info(self):
-        token = self.get_argument('token')
-        user = self.db.query(User).filter(User.token == token, User.token != '').one()
-        return user
 
     async def post(self):
         # 取课程参数
