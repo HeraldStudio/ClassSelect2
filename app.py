@@ -81,9 +81,9 @@ class ClassSelectHandler(BaseHandler):
                     for group in groups:
                         classes = self.db.query(Class).filter(Class.gid == group.gid).all()
                         group_json = {
-                            'gid': group_group.gid,
-                            'name': group_group.name,
-                            'max_select': group_group.max_select,
+                            'gid': group.gid,
+                            'name': group.name,
+                            'max_select': group.max_select,
                             'classes': [{
                                 'cid': clazz.cid,
                                 'name': clazz.name,
