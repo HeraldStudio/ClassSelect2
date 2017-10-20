@@ -23,7 +23,7 @@ class BaseHandler(RequestHandler):
     def finish(self, chunk=None):
         self.set_header('Access-Control-Allow-Origin','*')
         self.set_header('Access-Control-Allow-Methods','POST, GET, PUT, DELETE')
-        super(BaseHandler, self).finish(self)
+        super(BaseHandler, self).finish(self, chunk)
 
     def on_finish(self):
         self.db.close()
