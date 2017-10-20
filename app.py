@@ -160,10 +160,10 @@ class ClassSelectHandler(BaseHandler):
             group = self.db.query(ClassGroup).filter(ClassGroup.gid == clazz.gid).one()
         except:
             self.db.rollback()
-            self.finish_err(404, u'课程类不存在')
+            self.finish_err(404, u'课程方向不存在')
             return
         if 0 < group.max_select <= count:
-            self.finish_err(409, u'[' + group.name + u'] 内最多选择 ' + group.max_select + ' 门课程，请先退选不需要的课程！')
+            self.finish_err(409, u'[' + group.name + u'] 方向内最多选择 ' + str(group.max_select) + u' 门课程，请先退选不需要的课程！')
             return
 
         # 判断课类类是否选满
@@ -176,7 +176,7 @@ class ClassSelectHandler(BaseHandler):
             self.finish_err(404, u'课程大类不存在')
             return
         if 0 < group_group.max_select <= count:
-            self.finish_err(409, u'[' + group_group.name + u'] 内最多选择 ' + group_group.max_select + ' 小类的课程，请先退选不需要的课程！')
+            self.finish_err(409, u'[' + group_group.name + u'] 大类内最多选择 ' + str(group_group.max_select) + u' 个方向的课程，请先退选不需要的课程！')
             return
 
         # 判断该课是否满员
@@ -201,7 +201,7 @@ class ClassSelectHandler(BaseHandler):
             self.finish_err(500, u'添加课程失败')
             return
 
-        self.finish_success('添加课程成功，选课结果请以最终公布名单为准')
+        self.finish_success(u'添加课程成功，选课结果请以最终公布名单为准')
 
     async def delete(self):
         # 取课程参数
@@ -242,10 +242,10 @@ class ClassSelectHandler(BaseHandler):
             self.finish_err(500, u'取消课程失败')
             return
 
-        self.finish_success('取消课程成功')
+        self.finish_success(u'取消课程成功')
 
 
-define("port", default=8087, help="run on the given port", type=int)
+define("port", default=8087, help='run on the given port', type=int)
 
 
 class Application(tornado.web.Application):
