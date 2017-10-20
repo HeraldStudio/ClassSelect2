@@ -1,4 +1,5 @@
 import json
+import traceback
 from uuid import uuid4
 
 import time
@@ -99,7 +100,8 @@ class ClassSelectHandler(BaseHandler):
                 # 保存缓存
                 ClassSelectHandler.group_groups_cache = group_groups_json
                 self.finish_success(group_groups_json)
-            except:
+            except Exception as e:
+                traceback.print_exc(e)
                 self.db.rollback()
                 self.finish_err(500, u'获取课程列表失败')
 
