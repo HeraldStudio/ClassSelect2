@@ -257,7 +257,7 @@ class ExportHandler(BaseHandler):
                     csv += str(clazz.cid) + ',' + clazz.name + ',' + user.schoolnum + ',' + user.cardnum + ',' + user.name + ',' + selection.time + '\n'
 
         self.set_header('Content-Type', 'text/csv')
-        self.write(csv)
+        self.write(csv.encode('gbk'))
         self.finish()
 
 define("port", default=8087, help='run on the given port', type=int)
