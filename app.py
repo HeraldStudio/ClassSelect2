@@ -136,9 +136,8 @@ class ClassSelectHandler(BaseHandler):
             return
 
         try:
-            clazz = await self.db.query(Class).filter(Class.cid == cid).one()
-        except Exception as e:
-            traceback.print_exc(e)
+            clazz = self.db.query(Class).filter(Class.cid == cid).one()
+        except:
             self.db.rollback()
             self.finish_err(404, u'课程不存在')
             return
@@ -211,7 +210,7 @@ class ClassSelectHandler(BaseHandler):
             return
 
         try:
-            clazz = await self.db.query(Class).filter(Class.cid == cid).one()
+            clazz = self.db.query(Class).filter(Class.cid == cid).one()
         except:
             self.db.rollback()
             self.finish_err(404, u'课程不存在')
