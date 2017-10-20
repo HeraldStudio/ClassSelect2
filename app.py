@@ -28,8 +28,7 @@ class BaseHandler(RequestHandler):
 
     def finish_success(self, trunk):
         self.set_header('Access-Control-Allow-Origin','*')
-        self.write_json({
-
+        self.write_json ({
             'content': trunk,
             'code': 200
         })
@@ -37,7 +36,7 @@ class BaseHandler(RequestHandler):
 
     def finish_err(self, code, reason):
         self.set_header('Access-Control-Allow-Origin','*')
-        self.write_json({
+        self.write_json ({
             'content': reason,
             'code': code
         })
