@@ -268,7 +268,8 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, [
             (r'/', MainHandler),  # GET
             (r'/login', LoginHandler),  # POST
-            (r'/class', ClassSelectHandler)  # GET, POST, DELETE
+            (r'/class', ClassSelectHandler),  # GET, POST, DELETE
+            (r'/export', ExportHandler)  # GET
         ], debug=True)
         self.db = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=True, expire_on_commit=False))
 
