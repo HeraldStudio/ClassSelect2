@@ -33,6 +33,7 @@ class ClassGroup(Base):
 class ClassGroupGroup(Base):
     __tablename__ = 'class_group_group'
     ggid = Column(Integer, primary_key=True)
+    name = Column(String(256), nullable=False)
     max_select = Column(Integer, default=0)
 
 class Selection(Base):
@@ -53,3 +54,4 @@ class Log(Base):
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
+    print('Tables created.')
