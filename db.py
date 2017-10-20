@@ -51,6 +51,7 @@ class Log(Base):
     uid = Column(Integer, nullable=False)
     cid = Column(Integer, nullable=False)
     operation = Column(String(256), nullable=False)
+    time = Column(String(256), nullable=False)
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
