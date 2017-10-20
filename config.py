@@ -6,4 +6,4 @@ DB_NAME = 'class_selection'
 from time import time, localtime, strftime
 
 def isOpen():
-    return strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-21 00:13'
+    return strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-21 00:19'
