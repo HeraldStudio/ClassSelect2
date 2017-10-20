@@ -144,7 +144,7 @@ class ClassSelectHandler(BaseHandler):
 
         # 判断用户是否选过该课
         count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).count()
-        if len(count):
+        if count > 0:
             self.finish_err(409, u'该课程已经选择！')
             return
 
