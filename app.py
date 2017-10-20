@@ -106,7 +106,7 @@ class ClassSelectHandler(BaseHandler):
     @property
     async def user_info(self):
         token = self.get_argument('token')
-        user = self.db.query(User).filter(User.token == token).one()
+        user = self.db.query(User).filter(User.token == token, User.token != '').one()
         return user
 
     async def post(self):
