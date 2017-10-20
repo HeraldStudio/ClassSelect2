@@ -123,12 +123,6 @@ class ClassSelectHandler(BaseHandler):
             self.finish_err(404, u'课程不存在')
             return
 
-        # 判断该课是否满员
-        count = self.db.query(Selection).filter(Selection.cid == clazz.cid).count()
-        if 0 < clazz.max_select <= count:
-            self.finish_err(409, u'课程名额已满')
-            return
-
         # 判断用户是否选过该课
         count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).count()
         if len(count):
@@ -158,6 +152,12 @@ class ClassSelectHandler(BaseHandler):
             return
         if 0 < group_group.max_select <= count:
             self.finish_err(409, u'[' + group_group.name + u'] 内最多选择 ' + group_group.max_select + ' 小类的课程，请先退选不需要的课程！')
+            return
+
+        # 判断该课是否满员
+        count = self.db.query(Selection).filter(Selection.cid == clazz.cid).count()
+        if 0 < clazz.max_select <= count:
+            self.finish_err(409, u'课程名额已满')
             return
 
         # 进行选课
