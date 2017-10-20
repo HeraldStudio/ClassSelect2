@@ -59,51 +59,44 @@ class LoginHandler(BaseHandler):
 
 
 class ClassSelectHandler(BaseHandler):
-    # 静态缓存，每次运行只写一次，永不刷新
-    group_groups_cache = None
 
     # 列举课程
     async def get(self):
-        if ClassSelectHandler.group_groups_cache:
-            self.finish_success(ClassSelectHandler.group_groups_cache)
-        else:
-            try:
-                group_groups_json = []
-                group_groups = self.db.query(ClassGroupGroup).all()
-                for group_group in group_groups:
-                    group_group_json = {
-                        'ggid': group_group.ggid,
-                        'name': group_group.name,
-                        'max_select': group_group.max_select
+        try:
+            group_groups_json = []
+            group_groups = self.db.query(ClassGroupGroup).all()
+            for group_group in group_groups:
+                group_group_json = {
+                    'ggid': group_group.ggid,
+                    'name': group_group.name,
+                    'max_select': group_group.max_select
+                }
+                groups_json = []
+                groups = self.db.query(ClassGroup).filter(ClassGroup.ggid == group_group.ggid).all()
+                for group in groups:
+                    classes = self.db.query(Class).filter(Class.gid == group.gid).all()
+                    group_json = {
+                        'gid': group.gid,
+                        'name': group.name,
+                        'max_select': group.max_select,
+                        'classes': [{
+                            'cid': clazz.cid,
+                            'name': clazz.name,
+                            'desc': clazz.desc,
+                            'pic': clazz.pic,
+                            'capacity': clazz.capacity,
+                        } for clazz in classes]
                     }
-                    groups_json = []
-                    groups = self.db.query(ClassGroup).filter(ClassGroup.ggid == group_group.ggid).all()
-                    for group in groups:
-                        classes = self.db.query(Class).filter(Class.gid == group.gid).all()
-                        group_json = {
-                            'gid': group.gid,
-                            'name': group.name,
-                            'max_select': group.max_select,
-                            'classes': [{
-                                'cid': clazz.cid,
-                                'name': clazz.name,
-                                'desc': clazz.desc,
-                                'pic': clazz.pic,
-                                'capacity': clazz.capacity,
-                            } for clazz in classes]
-                        }
-                        groups_json.append(group_json)
+                    groups_json.append(group_json)
 
-                    group_group_json['groups'] = groups_json
-                    group_groups_json.append(group_group_json)
+                group_group_json['groups'] = groups_json
+                group_groups_json.append(group_group_json)
 
-                # 保存缓存
-                ClassSelectHandler.group_groups_cache = group_groups_json
-                self.finish_success(group_groups_json)
-            except Exception as e:
-                traceback.print_exc(e)
-                self.db.rollback()
-                self.finish_err(500, u'获取课程列表失败')
+            self.finish_success(group_groups_json)
+        except Exception as e:
+            traceback.print_exc(e)
+            self.db.rollback()
+            self.finish_err(500, u'获取课程列表失败')
 
     @property
     async def user_info(self):
