@@ -42,6 +42,13 @@ class BaseHandler(RequestHandler):
         self.finish()
 
 
+class MainHandler(BaseHandler):
+    # 欢迎语
+    async def get(self):
+        self.write(u'助学选课后端\n\nPowered by Herald Studio')
+        self.finish()
+
+
 class LoginHandler(BaseHandler):
     # 用户登录
     async def post(self):
@@ -221,6 +228,7 @@ define("port", default=8087, help="run on the given port", type=int)
 class Application(tornado.web.Application):
     def __init__(self):
         tornado.web.Application.__init__(self, [
+            (r'/', MainHandler),  # GET
             (r'/login', LoginHandler),  # POST
             (r'/class', ClassSelectHandler)  # GET, PUT, DELETE
         ], debug=True)
