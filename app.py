@@ -23,6 +23,11 @@ class BaseHandler(RequestHandler):
     def on_finish(self):
         self.db.close()
 
+    def write_back(self,content):
+        self.set_header('Access-Control-Allow-Origin','*')
+        self.write(json.dumps(content,ensure_ascii=False, indent=2))
+        self.finish()
+
     def write_json(self, trunk):
         self.write(json.dumps(trunk, ensure_ascii=False))
 
