@@ -1,6 +1,7 @@
 import json
 import traceback
 from uuid import uuid4
+from config import isOpen
 
 import time
 
@@ -59,8 +60,9 @@ class MainHandler(BaseHandler):
 class LoginHandler(BaseHandler):
     # 用户登录
     async def post(self):
-        # self.finish_err(404, u'选课尚未开放')
-        # return
+        if not isOpen():
+            self.finish_err(404, u'选课尚未开放')
+            return
 
         try:
             cardnum = self.get_argument('cardnum')
