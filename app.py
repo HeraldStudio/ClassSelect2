@@ -161,7 +161,7 @@ class ClassSelectHandler(BaseHandler):
             return
 
         # 判断课类类是否选满
-        count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.ggid == clazz.ggid).distinct(
+        count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.ggid == group.ggid).distinct(
             Selection.gid).count()
         try:
             group_group = self.db.query(ClassGroupGroup).filter(ClassGroupGroup.ggid == group.ggid).one()
