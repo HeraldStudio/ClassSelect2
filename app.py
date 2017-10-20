@@ -245,6 +245,21 @@ class ClassSelectHandler(BaseHandler):
         self.finish_success(u'取消课程成功')
 
 
+class ExportHandler(BaseHandler):
+    async def get(self):
+        csv = u'课程号,课程,学号,一卡通号,姓名,选课时间\n'
+        classes = self.db.query(Class).all()
+        for clazz in classes:
+            selections = self.db.query(Selection).filter(Selection.cid == clazz.cid).all()
+            for selection in selections:
+                user = self.db.query(User).filter(User.uid == selection.uid).one_or_none()
+                if user:
+                    csv += clazz.cid + ',' + clazz.name + ',' + user.schoolnum + ',' + user.cardnum + ',' + user.name + ',' + selection.time + '\n'
+
+        self.set_header('Content-Type', 'text/csv')
+        self.write(csv)
+        self.finish()
+
 define("port", default=8087, help='run on the given port', type=int)
 
 
