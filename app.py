@@ -193,6 +193,9 @@ class ClassSelectHandler(BaseHandler):
         except:
             self.db.rollback()
             self.finish_err(500, u'添加课程失败')
+            return
+
+        self.finish_success('添加课程成功，选课结果请以最终公布名单为准')
 
     async def delete(self):
         # 取课程参数
@@ -231,6 +234,9 @@ class ClassSelectHandler(BaseHandler):
         except:
             self.db.rollback()
             self.finish_err(500, u'取消课程失败')
+            return
+
+        self.finish_success('取消课程成功')
 
 
 define("port", default=8087, help="run on the given port", type=int)
@@ -241,7 +247,7 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, [
             (r'/', MainHandler),  # GET
             (r'/login', LoginHandler),  # POST
-            (r'/class', ClassSelectHandler)  # GET, PUT, DELETE
+            (r'/class', ClassSelectHandler)  # GET, POST, DELETE
         ], debug=True)
         self.db = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=True, expire_on_commit=False))
 
