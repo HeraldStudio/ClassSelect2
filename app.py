@@ -36,6 +36,7 @@ class BaseHandler(RequestHandler):
 
     def options(self):
         self.set_header('Access-Control-Allow-Origin','*')
+        self.set_header('Access-Control-Allow-Methods','*')
         self.finish()
 
     def finish_err(self, code, reason):
