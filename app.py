@@ -20,9 +20,10 @@ class BaseHandler(RequestHandler):
     def db(self):
         return self.application.db
 
-    def prepare_cors(self):
+    def finish(self, chunk=None):
         self.set_header('Access-Control-Allow-Origin','*')
         self.set_header('Access-Control-Allow-Methods','POST, GET, PUT, DELETE')
+        super(BaseHandler, self).finish(self)
 
     def on_finish(self):
         self.db.close()
@@ -31,7 +32,6 @@ class BaseHandler(RequestHandler):
         self.write(json.dumps(trunk, ensure_ascii=False))
 
     def finish_success(self, trunk):
-        self.prepare_cors()
         self.write_json ({
             'content': trunk,
             'code': 200
@@ -39,11 +39,9 @@ class BaseHandler(RequestHandler):
         self.finish()
 
     def options(self):
-        self.prepare_cors()
         self.finish()
 
     def finish_err(self, code, reason):
-        self.prepare_cors()
         self.write_json ({
             'content': reason,
             'code': code
