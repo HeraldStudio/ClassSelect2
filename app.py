@@ -86,12 +86,12 @@ class LoginHandler(BaseHandler):
             if user:
                 user.token = token
             else:
-                user = User(cardnum=cardnum, schoolnum=schoolnum, token=token)
+                name = self.get_argument('name')
+                user = User(cardnum=cardnum, schoolnum=schoolnum, name=name, token=token)
                 self.db.add(user)
             self.db.commit()
             self.finish_success(token)
-        except Exception as e:
-            traceback.print_exc(e)
+        except:
             self.db.rollback()
             self.finish_err(500, u'添加用户失败')
 
