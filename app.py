@@ -76,6 +76,22 @@ class LoginHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(401, u'一卡通号或学号不正确')
 
+    async def put(self):
+
+        try:
+            cardnum = self.get_argument('cardnum')
+            schoolnum = self.get_argument('schoolnum')
+            user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one_or_none()
+            if not user:
+                user = User(cardnum=cardnum, schoolnum=schoolnum, token='')
+            token = str(uuid4().hex)
+            user.token = token
+            self.db.commit()
+            self.finish_success(token)
+        except:
+            self.db.rollback()
+            self.finish_err(500, u'添加用户失败')
+
 
 class ClassSelectHandler(BaseHandler):
 
