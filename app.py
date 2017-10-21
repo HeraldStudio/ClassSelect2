@@ -81,16 +81,13 @@ class LoginHandler(BaseHandler):
         try:
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
+            name = self.get_argument('name')
             user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one_or_none()
-            token = str(uuid4().hex)
-            if user:
-                user.token = token
-            else:
-                name = self.get_argument('name')
-                user = User(cardnum=cardnum, schoolnum=schoolnum, name=name, token=token)
+            if not user:
+                user = User(cardnum=cardnum, schoolnum=schoolnum, name=name, token='')
                 self.db.add(user)
             self.db.commit()
-            self.finish_success(token)
+            self.finish_success('OK')
         except:
             self.db.rollback()
             self.finish_err(500, u'添加用户失败')
