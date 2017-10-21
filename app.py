@@ -76,8 +76,8 @@ class LoginHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(401, u'一卡通号或学号不正确')
 
+    # 添加用户
     async def put(self):
-
         try:
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
