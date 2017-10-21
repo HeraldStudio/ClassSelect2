@@ -53,7 +53,7 @@ class BaseHandler(RequestHandler):
 class MainHandler(BaseHandler):
     # 欢迎语
     async def get(self):
-        self.write(u'助学选课后端\n\nPowered by Herald Studio')
+        self.write(u'<pre>助学选课后端\n\nPowered by Herald Studio</pre>')
         self.finish()
 
 
@@ -71,7 +71,10 @@ class LoginHandler(BaseHandler):
             token = str(uuid4().hex)
             user.token = token
             self.db.commit()
-            self.finish_success(token)
+            self.finish_success({
+                'token': token,
+                'username': user.name
+            })
         except:
             self.db.rollback()
             self.finish_err(401, u'一卡通号或学号不正确')
