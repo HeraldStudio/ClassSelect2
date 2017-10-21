@@ -82,11 +82,12 @@ class LoginHandler(BaseHandler):
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
             user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one_or_none()
-            if not user:
-                user = User(cardnum=cardnum, schoolnum=schoolnum, token='')
-                self.db.add(user)
             token = str(uuid4().hex)
-            user.token = token
+            if user:
+                user.token = token
+            else:
+                user = User(cardnum=cardnum, schoolnum=schoolnum, token=token)
+                self.db.add(user)
             self.db.commit()
             self.finish_success(token)
         except:
