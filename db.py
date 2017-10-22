@@ -4,7 +4,7 @@ from config import *
 
 Base = declarative_base()
 engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8' %
-                       (DB_USER, DB_PWD, DB_HOST, DB_NAME), echo=False, pool_size=500, pool_recycle=100)
+                       (DB_USER, DB_PWD, DB_HOST, DB_NAME), echo=False, pool_size=8, pool_recycle=100)
 
 class User(Base):
     __tablename__ = 'user'
