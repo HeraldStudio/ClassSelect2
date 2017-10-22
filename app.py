@@ -24,10 +24,10 @@ from db import User, ClassGroupGroup, ClassGroup, Class, Selection, Log, engine
 
 
 phone_re = re.compile(r'^1\d{10}$')
-executor = ThreadPoolExecutor(10)
 
 
 class BaseHandler(RequestHandler):
+    executor = ThreadPoolExecutor(10)
 
     @property
     def db(self):
@@ -73,6 +73,7 @@ class MainHandler(BaseHandler):
 class LoginHandler(BaseHandler):
 
     # 用户登录
+    @run_on_executor
     async def post(self):
         if not isOpen():
             self.finish_err(404, u'选课尚未开放')
@@ -137,6 +138,7 @@ class ClassSelectHandler(BaseHandler):
         return user
 
     # 列举课程
+    @run_on_executor
     async def get(self):
 
         try:
@@ -199,6 +201,7 @@ class ClassSelectHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
 
+    @run_on_executor
     async def post(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
@@ -273,6 +276,7 @@ class ClassSelectHandler(BaseHandler):
 
         self.finish_success(u'添加课程成功，选课结果请以最终公布名单为准')
 
+    @run_on_executor
     async def delete(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
