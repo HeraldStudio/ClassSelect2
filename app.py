@@ -1,3 +1,4 @@
+import asyncio
 import json
 import traceback
 from concurrent.futures import ThreadPoolExecutor
@@ -14,6 +15,7 @@ import tornado
 import tornado.ioloop
 import tornado.options
 import tornado.web
+from tornado.platform.asyncio import AsyncIOMainLoop
 from sqlalchemy.orm import scoped_session, sessionmaker
 from tornado.options import define, options
 from tornado.web import RequestHandler
@@ -106,7 +108,6 @@ class LoginHandler(BaseHandler):
             self.finish_err(401, u'一卡通号或学号不正确')
 
     # 添加用户
-    @run_on_executor
     def put(self):
         try:
             cardnum = self.get_argument('cardnum')
@@ -118,8 +119,7 @@ class LoginHandler(BaseHandler):
                 self.db.add(user)
             self.db.commit()
             self.finish_success('OK')
-        except Exception as e:
-            traceback.print_exc(e)
+        except:
             self.db.rollback()
             self.finish_err(500, u'添加用户失败')
 
@@ -357,9 +357,13 @@ class Application(tornado.web.Application):
         self.db = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=True, expire_on_commit=False))
 
 
+async def app():
+    Application().listen(options.port)
 
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    Application().listen(options.port)
-    tornado.ioloop.IOLoop.instance().start()
+    AsyncIOMainLoop().install()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(app())
+    loop.run_forever()
