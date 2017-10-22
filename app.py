@@ -1,3 +1,4 @@
+import asyncio
 import json
 import traceback
 from concurrent.futures import ThreadPoolExecutor
@@ -14,6 +15,7 @@ import tornado
 import tornado.ioloop
 import tornado.options
 import tornado.web
+from tornado.platform.asyncio import AsyncIOMainLoop
 from sqlalchemy.orm import scoped_session, sessionmaker
 from tornado.options import define, options
 from tornado.web import RequestHandler
@@ -27,9 +29,8 @@ phone_re = re.compile(r'^1\d{10}$')
 class BaseHandler(RequestHandler):
     executor = ThreadPoolExecutor(100)
 
-    @run_on_executor
-    def λ(self, lam):
-        return lam()
+    async def λ(self, lam):
+        return await asyncio.get_event_loop().run_in_executor(BaseHandler.executor, lam)
 
     @property
     def db(self):
@@ -356,5 +357,7 @@ class Application(tornado.web.Application):
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    Application().listen(options.port)
-    tornado.ioloop.IOLoop.instance().start()
+    AsyncIOMainLoop().install()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(lambda: Application().listen(options.port))
+    loop.run_forever()
