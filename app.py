@@ -27,7 +27,7 @@ phone_re = re.compile(r'^1\d{10}$')
 
 
 class BaseHandler(RequestHandler):
-    executor = ThreadPoolExecutor(32)
+    executor = ThreadPoolExecutor(10)
 
     @property
     def db(self):
@@ -137,7 +137,7 @@ class ClassSelectHandler(BaseHandler):
         return user
 
     # 列举课程
-    @run_on_executor
+    # @run_on_executor
     def get(self):
 
         try:
