@@ -288,7 +288,7 @@ class ClassSelectHandler(BaseHandler):
 
         try:
             # 取用户登录信息
-            user = await self.user_info
+            user = self.user_info
         except:
             self.db.rollback()
             self.finish_err(403, u'登录无效或已过期，请重新登录')
