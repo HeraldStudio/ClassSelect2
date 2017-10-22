@@ -25,7 +25,7 @@ phone_re = re.compile(r'^1\d{10}$')
 
 
 class BaseHandler(RequestHandler):
-    executor = ThreadPoolExecutor(200)
+    executor = ThreadPoolExecutor(100)
 
     @run_on_executor
     def λ(self, lam):
