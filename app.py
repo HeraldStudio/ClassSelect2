@@ -62,7 +62,6 @@ class BaseHandler(RequestHandler):
 
 class MainHandler(BaseHandler):
     # 欢迎语
-    @run_on_executor
     def get(self):
         self.write(u'<pre>助学选课后端\n\nPowered by Herald Studio</pre>')
         self.finish()
@@ -106,7 +105,6 @@ class LoginHandler(BaseHandler):
             self.finish_err(401, u'一卡通号或学号不正确')
 
     # 添加用户
-    @run_on_executor
     def put(self):
         try:
             cardnum = self.get_argument('cardnum')
@@ -302,7 +300,6 @@ class ClassSelectHandler(BaseHandler):
 
 class ExportHandler(BaseHandler):
 
-    @run_on_executor
     def get(self):
         csv = u'课程号,课程,学号,一卡通号,姓名,手机,选课时间\n'
         classes = self.db.query(Class).all()
