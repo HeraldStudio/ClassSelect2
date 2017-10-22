@@ -355,9 +355,13 @@ class Application(tornado.web.Application):
         self.db = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=True, expire_on_commit=False))
 
 
+async def app():
+    Application().listen(options.port)
+
+
 if __name__ == '__main__':
     tornado.options.parse_command_line()
     AsyncIOMainLoop().install()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(lambda: Application().listen(options.port))
+    loop.run_until_complete(app)
     loop.run_forever()
