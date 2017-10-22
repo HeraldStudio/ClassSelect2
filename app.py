@@ -126,10 +126,6 @@ class LoginHandler(BaseHandler):
 
 class ClassSelectHandler(BaseHandler):
 
-    group_groups = None
-    all_groups = None
-    all_classes = None
-
     @property
     def user_info(self):
         token = self.get_argument('token')
@@ -150,48 +146,34 @@ class ClassSelectHandler(BaseHandler):
 
         try:
             group_groups_json = []
-            group_groups = ClassSelectHandler.group_groups or self.db.query(ClassGroupGroup).all()
-            ClassSelectHandler.group_groups = group_groups
-
-            all_groups = ClassSelectHandler.all_groups or self.db.query(ClassGroup).all()
-            ClassSelectHandler.all_groups = all_groups
-
-            all_classes = ClassSelectHandler.all_classes or self.db.query(Class).all()
-            ClassSelectHandler.all_classes = all_classes
-
+            group_groups = self.db.query(ClassGroupGroup).all()
             for group_group in group_groups:
                 group_group_json = {
                     'ggid': group_group.ggid,
                     'name': group_group.name,
-                    'max_select': group_group.max_select,
-                    'groups': []
+                    'max_select': group_group.max_select
                 }
-
-                groups = filter(lambda g: g.ggid == group_group.ggid, all_groups)
+                groups_json = []
+                groups = self.db.query(ClassGroup).filter(ClassGroup.ggid == group_group.ggid).all()
                 for group in groups:
+                    classes = self.db.query(Class).filter(Class.gid == group.gid).all()
                     group_json = {
                         'gid': group.gid,
                         'name': group.name,
                         'max_select': group.max_select,
-                        'classes': []
-                    }
-
-                    classes = filter(lambda c: c.gid == group.gid, all_classes)
-                    for clazz in classes:
-                        clazz_json = {
+                        'classes': [{
                             'cid': clazz.cid,
                             'name': clazz.name,
                             'desc': clazz.desc,
                             'pic': clazz.pic,
                             'capacity': clazz.capacity,
                             'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
-                            'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid,
-                                                                                      Selection.uid == user.uid).count() > 0
-                        }
-                        group_json['classes'].append(clazz_json)
+                            'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid, Selection.uid == user.uid).count() > 0
+                        } for clazz in classes]
+                    }
+                    groups_json.append(group_json)
 
-                    group_group_json['groups'].append(group_json)
-
+                group_group_json['groups'] = groups_json
                 group_groups_json.append(group_group_json)
 
             self.finish_success(group_groups_json)
