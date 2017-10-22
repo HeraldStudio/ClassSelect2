@@ -119,7 +119,8 @@ class LoginHandler(BaseHandler):
                 self.db.add(user)
             await self.λ(lambda: self.db.commit())
             self.finish_success('OK')
-        except:
+        except Exception as e:
+            traceback.print_exc(e)
             self.db.rollback()
             self.finish_err(500, u'添加用户失败')
 
