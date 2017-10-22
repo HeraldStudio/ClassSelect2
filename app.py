@@ -25,7 +25,7 @@ phone_re = re.compile(r'^1\d{10}$')
 
 
 class BaseHandler(RequestHandler):
-    executor = ThreadPoolExecutor(20)
+    executor = ThreadPoolExecutor(200)
 
     @property
     def db(self):
