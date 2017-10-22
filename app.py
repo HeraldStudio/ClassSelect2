@@ -195,8 +195,7 @@ class ClassSelectHandler(BaseHandler):
                 group_groups_json.append(group_group_json)
 
             self.finish_success(group_groups_json)
-        except Exception as e:
-            traceback.print_exc(e)
+        except:
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
 
