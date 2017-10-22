@@ -12,6 +12,7 @@ class User(Base):
     cardnum = Column(String(128), nullable=False)
     schoolnum = Column(String(128), nullable=False)
     name = Column(String(256), nullable=False)
+    phone = Column(String(128), nullable=False)
     token = Column(String(256), nullable=False)
 
 class Class(Base):

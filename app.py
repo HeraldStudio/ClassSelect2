@@ -58,6 +58,7 @@ class MainHandler(BaseHandler):
 
 
 class LoginHandler(BaseHandler):
+
     # 用户登录
     async def post(self):
         if not isOpen():
@@ -67,12 +68,16 @@ class LoginHandler(BaseHandler):
         try:
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
+            phone = self.get_argument('phone', default=None)
             user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one()
             token = str(uuid4().hex)
+            if phone:
+                user.phone = phone
             user.token = token
             self.db.commit()
             self.finish_success({
                 'token': token,
+                'hasPhone': user.phone != '',
                 'username': user.name
             })
         except:
@@ -87,7 +92,7 @@ class LoginHandler(BaseHandler):
             name = self.get_argument('name')
             user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one_or_none()
             if not user:
-                user = User(cardnum=cardnum, schoolnum=schoolnum, name=name, token='')
+                user = User(cardnum=cardnum, schoolnum=schoolnum, name=name, phone='', token='')
                 self.db.add(user)
             self.db.commit()
             self.finish_success('OK')
