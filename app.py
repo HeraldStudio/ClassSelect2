@@ -3,6 +3,7 @@ import traceback
 from uuid import uuid4
 from config import isOpen
 
+import re
 import time
 
 import tornado
@@ -14,6 +15,9 @@ from tornado.options import define, options
 from tornado.web import RequestHandler
 
 from db import User, ClassGroupGroup, ClassGroup, Class, Selection, Log, engine
+
+
+phone_re = re.compile(r'^1\d{10}$')
 
 
 class BaseHandler(RequestHandler):
@@ -70,14 +74,23 @@ class LoginHandler(BaseHandler):
             schoolnum = self.get_argument('schoolnum')
             phone = self.get_argument('phone', default=None)
             user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one()
-            token = str(uuid4().hex)
+
             if phone:
+                if not phone_re.match(phone):
+                    self.finish_err(401, u'请设置正确的11位手机号码')
+                    return
                 user.phone = phone
+
+            if not user.phone:
+                self.finish_err(401, u'首次登录，请填写手机号码')
+                return
+
+            token = str(uuid4().hex)
             user.token = token
             self.db.commit()
+
             self.finish_success({
                 'token': token,
-                'hasPhone': user.phone != '',
                 'username': user.name
             })
         except:
