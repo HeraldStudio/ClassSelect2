@@ -27,7 +27,7 @@ phone_re = re.compile(r'^1\d{10}$')
 
 
 class BaseHandler(RequestHandler):
-    executor = ThreadPoolExecutor(8)
+    executor = ThreadPoolExecutor(100)
 
     @property
     def db(self):
@@ -199,7 +199,6 @@ class ClassSelectHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
 
-    @run_on_executor
     def post(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
