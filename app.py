@@ -127,8 +127,8 @@ class LoginHandler(BaseHandler):
 class ClassSelectHandler(BaseHandler):
 
     group_groups = None
-    groups = dict()
-    classes = dict()
+    groups = None
+    classes = None
 
     @property
     def user_info(self):
@@ -153,42 +153,58 @@ class ClassSelectHandler(BaseHandler):
             group_groups = ClassSelectHandler.group_groups or self.db.query(ClassGroupGroup).all()
             ClassSelectHandler.group_groups = group_groups
 
-            for group_group in group_groups:
-                group_group_json = {
-                    'ggid': group_group.ggid,
-                    'name': group_group.name,
-                    'max_select': group_group.max_select
-                }
-                groups_json = []
-                groups = ClassSelectHandler.groups[group_group.ggid] if group_group.ggid in ClassSelectHandler.groups \
-                    else self.db.query(ClassGroup).filter(ClassGroup.ggid == group_group.ggid).all()
-                ClassSelectHandler.groups[group_group.ggid] = groups
+            groups = ClassSelectHandler.groups or self.db.query(ClassGroup).all()
+            ClassSelectHandler.group_groups = groups
 
-                for group in groups:
-                    classes = ClassSelectHandler.classes[group.gid] if group.gid in ClassSelectHandler.classes \
-                        else self.db.query(Class).filter(Class.gid == group.gid).all()
-                    ClassSelectHandler.classes[group.gid] = classes
+            classes = ClassSelectHandler.classes or self.db.query(Class).all()
+            ClassSelectHandler.classes = classes
 
-                    group_json = {
-                        'gid': group.gid,
-                        'name': group.name,
-                        'max_select': group.max_select,
-                        'classes': [{
+            self.finish_success([{
                             'cid': clazz.cid,
                             'name': clazz.name,
                             'desc': clazz.desc,
                             'pic': clazz.pic,
                             'capacity': clazz.capacity,
-                            # 'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
+                            'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
                             'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid, Selection.uid == user.uid).count() > 0
-                        } for clazz in classes]
-                    }
-                    groups_json.append(group_json)
+                        } for clazz in classes])
 
-                group_group_json['groups'] = groups_json
-                group_groups_json.append(group_group_json)
-
-            self.finish_success(group_groups_json)
+            # for group_group in group_groups:
+            #     group_group_json = {
+            #         'ggid': group_group.ggid,
+            #         'name': group_group.name,
+            #         'max_select': group_group.max_select
+            #     }
+            #     groups_json = []
+            #     groups = ClassSelectHandler.groups[group_group.ggid] if group_group.ggid in ClassSelectHandler.groups \
+            #         else self.db.query(ClassGroup).filter(ClassGroup.ggid == group_group.ggid).all()
+            #     ClassSelectHandler.groups[group_group.ggid] = groups
+            #
+            #     for group in groups:
+            #         classes = ClassSelectHandler.classes[group.gid] if group.gid in ClassSelectHandler.classes \
+            #             else self.db.query(Class).filter(Class.gid == group.gid).all()
+            #         ClassSelectHandler.classes[group.gid] = classes
+            #
+            #         group_json = {
+            #             'gid': group.gid,
+            #             'name': group.name,
+            #             'max_select': group.max_select,
+            #             'classes': [{
+            #                 'cid': clazz.cid,
+            #                 'name': clazz.name,
+            #                 'desc': clazz.desc,
+            #                 'pic': clazz.pic,
+            #                 'capacity': clazz.capacity,
+            #                 'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
+            #                 'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid, Selection.uid == user.uid).count() > 0
+            #             } for clazz in classes]
+            #         }
+            #         groups_json.append(group_json)
+            #
+            #     group_group_json['groups'] = groups_json
+            #     group_groups_json.append(group_group_json)
+            #
+            # self.finish_success(group_groups_json)
         except:
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
