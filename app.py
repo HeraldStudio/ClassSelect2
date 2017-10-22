@@ -1,6 +1,10 @@
 import json
 import traceback
+from concurrent.futures import ThreadPoolExecutor
 from uuid import uuid4
+
+from tornado.concurrent import run_on_executor
+
 from config import isOpen
 
 import re
@@ -21,6 +25,8 @@ phone_re = re.compile(r'^1\d{10}$')
 
 
 class BaseHandler(RequestHandler):
+    executor = ThreadPoolExecutor(20)
+
     @property
     def db(self):
         return self.application.db
@@ -56,7 +62,8 @@ class BaseHandler(RequestHandler):
 
 class MainHandler(BaseHandler):
     # 欢迎语
-    async def get(self):
+    @run_on_executor
+    def get(self):
         self.write(u'<pre>助学选课后端\n\nPowered by Herald Studio</pre>')
         self.finish()
 
@@ -64,7 +71,8 @@ class MainHandler(BaseHandler):
 class LoginHandler(BaseHandler):
 
     # 用户登录
-    async def post(self):
+    @run_on_executor
+    def post(self):
         if not isOpen():
             self.finish_err(404, u'选课尚未开放')
             return
@@ -98,7 +106,8 @@ class LoginHandler(BaseHandler):
             self.finish_err(401, u'一卡通号或学号不正确')
 
     # 添加用户
-    async def put(self):
+    @run_on_executor
+    def put(self):
         try:
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
@@ -117,17 +126,18 @@ class LoginHandler(BaseHandler):
 class ClassSelectHandler(BaseHandler):
 
     @property
-    async def user_info(self):
+    def user_info(self):
         token = self.get_argument('token')
         user = self.db.query(User).filter(User.token == token, User.token != '').one()
         return user
 
     # 列举课程
-    async def get(self):
+    @run_on_executor
+    def get(self):
 
         try:
             # 取用户登录信息
-            user = await self.user_info
+            user = self.user_info
         except:
             self.db.rollback()
             self.finish_err(403, u'登录无效或已过期，请重新登录')
@@ -171,13 +181,14 @@ class ClassSelectHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
 
-    async def post(self):
+    @run_on_executor
+    def post(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
 
         try:
             # 取用户登录信息
-            user = await self.user_info
+            user = self.user_info
         except:
             self.db.rollback()
             self.finish_err(403, u'登录无效或已过期，请重新登录')
@@ -245,13 +256,14 @@ class ClassSelectHandler(BaseHandler):
 
         self.finish_success(u'添加课程成功，选课结果请以最终公布名单为准')
 
-    async def delete(self):
+    @run_on_executor
+    def delete(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
 
         try:
             # 取用户登录信息
-            user = await self.user_info
+            user = self.user_info
         except:
             self.db.rollback()
             self.finish_err(403, u'登录无效或已过期，请重新登录')
@@ -289,7 +301,9 @@ class ClassSelectHandler(BaseHandler):
 
 
 class ExportHandler(BaseHandler):
-    async def get(self):
+
+    @run_on_executor
+    def get(self):
         csv = u'课程号,课程,学号,一卡通号,姓名,手机,选课时间\n'
         classes = self.db.query(Class).all()
         for clazz in classes:
