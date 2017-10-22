@@ -179,7 +179,6 @@ class ClassSelectHandler(BaseHandler):
                             'desc': clazz.desc,
                             'pic': clazz.pic,
                             'capacity': clazz.capacity,
-                            'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
                             'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid, Selection.uid == user.uid).count() > 0
                         } for clazz in classes]
                     }
