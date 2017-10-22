@@ -26,7 +26,7 @@ from db import User, ClassGroupGroup, ClassGroup, Class, Selection, Log, engine
 phone_re = re.compile(r'^1\d{10}$')
 executor = ThreadPoolExecutor(10)
 
-async def async(fun):
+async def _async(fun):
     async def wrapped():
         await asyncio.get_event_loop().run_in_executor(executor, fun)
     return wrapped
@@ -77,7 +77,7 @@ class MainHandler(BaseHandler):
 class LoginHandler(BaseHandler):
 
     # 用户登录
-    @async
+    @_async
     def post(self):
         if not isOpen():
             self.finish_err(404, u'选课尚未开放')
@@ -112,7 +112,7 @@ class LoginHandler(BaseHandler):
             self.finish_err(401, u'一卡通号或学号不正确')
 
     # 添加用户
-    @async
+    @_async
     def put(self):
         try:
             cardnum = self.get_argument('cardnum')
@@ -143,7 +143,7 @@ class ClassSelectHandler(BaseHandler):
         return user
 
     # 列举课程
-    @async
+    @_async
     def get(self):
 
         try:
@@ -206,7 +206,7 @@ class ClassSelectHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
 
-    @async
+    @_async
     def post(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
@@ -281,7 +281,7 @@ class ClassSelectHandler(BaseHandler):
 
         self.finish_success(u'添加课程成功，选课结果请以最终公布名单为准')
 
-    @async
+    @_async
     def delete(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
@@ -327,7 +327,7 @@ class ClassSelectHandler(BaseHandler):
 
 class ExportHandler(BaseHandler):
 
-    @async
+    @_async
     def get(self):
         csv = u'课程号,课程,学号,一卡通号,姓名,手机,选课时间\n'
         classes = self.db.query(Class).all()
