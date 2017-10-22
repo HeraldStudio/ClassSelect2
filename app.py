@@ -72,7 +72,7 @@ class LoginHandler(BaseHandler):
         try:
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
-            phone = self.get_argument('phone', default=None)
+            phone = self.get_argument('phone', default='')
             user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one()
 
             if phone:
