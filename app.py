@@ -126,6 +126,10 @@ class LoginHandler(BaseHandler):
 
 class ClassSelectHandler(BaseHandler):
 
+    group_groups = None
+    groups = dict()
+    classes = dict()
+
     @property
     def user_info(self):
         token = self.get_argument('token')
@@ -146,7 +150,9 @@ class ClassSelectHandler(BaseHandler):
 
         try:
             group_groups_json = []
-            group_groups = self.db.query(ClassGroupGroup).all()
+            group_groups = ClassSelectHandler.group_groups or self.db.query(ClassGroupGroup).all()
+            ClassSelectHandler.group_groups = group_groups
+
             for group_group in group_groups:
                 group_group_json = {
                     'ggid': group_group.ggid,
@@ -154,9 +160,15 @@ class ClassSelectHandler(BaseHandler):
                     'max_select': group_group.max_select
                 }
                 groups_json = []
-                groups = self.db.query(ClassGroup).filter(ClassGroup.ggid == group_group.ggid).all()
+                groups = ClassSelectHandler.groups[group_group.ggid] if group_group.ggid in ClassSelectHandler.groups \
+                    else self.db.query(ClassGroup).filter(ClassGroup.ggid == group_group.ggid).all()
+                ClassSelectHandler.groups[group_group.ggid] = groups
+
                 for group in groups:
-                    classes = self.db.query(Class).filter(Class.gid == group.gid).all()
+                    classes = ClassSelectHandler.classes[group.gid] if group.gid in ClassSelectHandler.classes \
+                        else self.db.query(Class).filter(Class.gid == group.gid).all()
+                    ClassSelectHandler.classes[group.gid] = classes
+
                     group_json = {
                         'gid': group.gid,
                         'name': group.name,
