@@ -24,13 +24,15 @@ from db import User, ClassGroupGroup, ClassGroup, Class, Selection, Log, engine
 
 
 phone_re = re.compile(r'^1\d{10}$')
+executor = ThreadPoolExecutor(10)
+
+async def async(fun):
+    async def wrapped():
+        await asyncio.get_event_loop().run_in_executor(executor, fun)
+    return wrapped
 
 
 class BaseHandler(RequestHandler):
-    executor = ThreadPoolExecutor(100)
-
-    async def λ(self, lam):
-        return await asyncio.get_event_loop().run_in_executor(BaseHandler.executor, lam)
 
     @property
     def db(self):
@@ -75,7 +77,8 @@ class MainHandler(BaseHandler):
 class LoginHandler(BaseHandler):
 
     # 用户登录
-    async def post(self):
+    @async
+    def post(self):
         if not isOpen():
             self.finish_err(404, u'选课尚未开放')
             return
@@ -84,7 +87,7 @@ class LoginHandler(BaseHandler):
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
             phone = self.get_argument('phone', default='')
-            user = await self.λ(lambda: self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one())
+            user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one()
 
             if phone:
                 if not phone_re.match(phone):
@@ -98,7 +101,7 @@ class LoginHandler(BaseHandler):
 
             token = str(uuid4().hex)
             user.token = token
-            await self.λ(lambda: self.db.commit())
+            self.db.commit()
 
             self.finish_success({
                 'token': token,
@@ -109,16 +112,17 @@ class LoginHandler(BaseHandler):
             self.finish_err(401, u'一卡通号或学号不正确')
 
     # 添加用户
-    async def put(self):
+    @async
+    def put(self):
         try:
             cardnum = self.get_argument('cardnum')
             schoolnum = self.get_argument('schoolnum')
             name = self.get_argument('name')
-            user = await self.λ(lambda: self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one_or_none())
+            user = self.db.query(User).filter(User.cardnum == cardnum, User.schoolnum == schoolnum).one_or_none()
             if not user:
                 user = User(cardnum=cardnum, schoolnum=schoolnum, name=name, phone='', token='')
                 self.db.add(user)
-            await self.λ(lambda: self.db.commit())
+            self.db.commit()
             self.finish_success('OK')
         except Exception as e:
             traceback.print_exc(e)
@@ -133,17 +137,18 @@ class ClassSelectHandler(BaseHandler):
     all_classes = None
 
     @property
-    async def user_info(self):
+    def user_info(self):
         token = self.get_argument('token')
-        user = await self.λ(self.db.query(User).filter(User.token == token, User.token != '').one())
+        user = self.db.query(User).filter(User.token == token, User.token != '').one()
         return user
 
     # 列举课程
-    async def get(self):
+    @async
+    def get(self):
 
         try:
             # 取用户登录信息
-            user = await self.user_info
+            user = self.user_info
         except:
             self.db.rollback()
             self.finish_err(403, u'登录无效或已过期，请重新登录')
@@ -151,13 +156,13 @@ class ClassSelectHandler(BaseHandler):
 
         try:
             group_groups_json = []
-            group_groups = ClassSelectHandler.group_groups or await self.λ(self.db.query(ClassGroupGroup).all())
+            group_groups = ClassSelectHandler.group_groups or self.db.query(ClassGroupGroup).all()
             ClassSelectHandler.group_groups = group_groups
 
-            all_groups = ClassSelectHandler.all_groups or await self.λ(self.db.query(ClassGroup).all())
+            all_groups = ClassSelectHandler.all_groups or self.db.query(ClassGroup).all()
             ClassSelectHandler.all_groups = all_groups
 
-            all_classes = ClassSelectHandler.all_classes or await self.λ(self.db.query(Class).all())
+            all_classes = ClassSelectHandler.all_classes or self.db.query(Class).all()
             ClassSelectHandler.all_classes = all_classes
 
             for group_group in group_groups:
@@ -185,9 +190,9 @@ class ClassSelectHandler(BaseHandler):
                             'desc': clazz.desc,
                             'pic': clazz.pic,
                             'capacity': clazz.capacity,
-                            'count': await self.λ(self.db.query(Selection).filter(Selection.cid == clazz.cid).count()),
-                            'selected': (await self.λ(self.db.query(Selection).filter(Selection.cid == clazz.cid,
-                                                                                      Selection.uid == user.uid).count())) > 0
+                            'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
+                            'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid,
+                                                                                      Selection.uid == user.uid).count() > 0
                         }
                         group_json['classes'].append(clazz_json)
 
@@ -201,35 +206,36 @@ class ClassSelectHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
 
-    async def post(self):
+    @async
+    def post(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
 
         try:
             # 取用户登录信息
-            user = await self.user_info
+            user = self.user_info
         except:
             self.db.rollback()
             self.finish_err(403, u'登录无效或已过期，请重新登录')
             return
 
         try:
-            clazz = await self.λ(self.db.query(Class).filter(Class.cid == cid).one())
+            clazz = self.db.query(Class).filter(Class.cid == cid).one()
         except:
             self.db.rollback()
             self.finish_err(404, u'课程不存在')
             return
 
         # 判断用户是否选过该课
-        count = await self.λ(self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).count())
+        count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).count()
         if count > 0:
             self.finish_err(409, u'该课程已经选择！')
             return
 
         # 判断课类是否选满
-        count = await self.λ(self.db.query(Selection).filter(Selection.uid == user.uid, Selection.gid == clazz.gid).count())
+        count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.gid == clazz.gid).count()
         try:
-            group = await self.λ(self.db.query(ClassGroup).filter(ClassGroup.gid == clazz.gid).one())
+            group = self.db.query(ClassGroup).filter(ClassGroup.gid == clazz.gid).one()
         except:
             self.db.rollback()
             self.finish_err(404, u'课程方向不存在')
@@ -239,10 +245,10 @@ class ClassSelectHandler(BaseHandler):
             return
 
         # 判断课类类是否选满
-        count = await self.λ(self.db.query(Selection).filter(Selection.uid == user.uid, Selection.ggid == group.ggid).distinct(
-            Selection.gid).count())
+        count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.ggid == group.ggid).distinct(
+            Selection.gid).count()
         try:
-            group_group = await self.λ(self.db.query(ClassGroupGroup).filter(ClassGroupGroup.ggid == group.ggid).one())
+            group_group = self.db.query(ClassGroupGroup).filter(ClassGroupGroup.ggid == group.ggid).one()
         except:
             self.db.rollback()
             self.finish_err(404, u'课程大类不存在')
@@ -252,7 +258,7 @@ class ClassSelectHandler(BaseHandler):
             return
 
         # 判断该课是否满员
-        count = await self.λ(self.db.query(Selection).filter(Selection.cid == clazz.cid).count())
+        count = self.db.query(Selection).filter(Selection.cid == clazz.cid).count()
         if 0 < clazz.capacity <= count:
             self.finish_err(409, u'课程名额已满')
             return
@@ -267,7 +273,7 @@ class ClassSelectHandler(BaseHandler):
             log = Log(uid=user.uid, cid=clazz.cid, operation='select', time=t)
             self.db.add(log)
 
-            await self.λ(self.db.commit())
+            self.db.commit()
         except:
             self.db.rollback()
             self.finish_err(500, u'添加课程失败')
@@ -275,7 +281,8 @@ class ClassSelectHandler(BaseHandler):
 
         self.finish_success(u'添加课程成功，选课结果请以最终公布名单为准')
 
-    async def delete(self):
+    @async
+    def delete(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
 
@@ -288,28 +295,28 @@ class ClassSelectHandler(BaseHandler):
             return
 
         try:
-            clazz = await self.λ(self.db.query(Class).filter(Class.cid == cid).one())
+            clazz = self.db.query(Class).filter(Class.cid == cid).one()
         except:
             self.db.rollback()
             self.finish_err(404, u'课程不存在')
             return
 
         # 判断用户是否选过该课
-        sel = await self.λ(self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).one_or_none())
+        sel = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).one_or_none()
         if not sel:
             self.finish_err(404, u'未选择该课程！')
             return
 
         # 取消选课
         try:
-            await self.λ(self.db.delete(sel))
+            self.db.delete(sel)
 
             # 保存日志
             t = time.strftime('%Y-%m-%d %X', time.localtime(time.time()))
             log = Log(uid=user.uid, cid=clazz.cid, operation='deselect', time=t)
             self.db.add(log)
 
-            await self.λ(self.db.commit())
+            self.db.commit()
         except:
             self.db.rollback()
             self.finish_err(500, u'取消课程失败')
@@ -320,13 +327,14 @@ class ClassSelectHandler(BaseHandler):
 
 class ExportHandler(BaseHandler):
 
-    async def get(self):
+    @async
+    def get(self):
         csv = u'课程号,课程,学号,一卡通号,姓名,手机,选课时间\n'
-        classes = await self.λ(self.db.query(Class).all())
+        classes = self.db.query(Class).all()
         for clazz in classes:
-            selections = await self.λ(self.db.query(Selection).filter(Selection.cid == clazz.cid).all())
+            selections = self.db.query(Selection).filter(Selection.cid == clazz.cid).all()
             for selection in selections:
-                user = await self.λ(self.db.query(User).filter(User.uid == selection.uid).one_or_none())
+                user = self.db.query(User).filter(User.uid == selection.uid).one_or_none()
                 if user:
                     csv += str(clazz.cid)   + ',' + \
                            clazz.name       + ',' + \
