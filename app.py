@@ -290,7 +290,7 @@ class ClassSelectHandler(BaseHandler):
 
 class ExportHandler(BaseHandler):
     async def get(self):
-        csv = u'课程号,课程,学号,一卡通号,姓名,选课时间\n'
+        csv = u'课程号,课程,学号,一卡通号,姓名,手机,选课时间\n'
         classes = self.db.query(Class).all()
         for clazz in classes:
             selections = self.db.query(Selection).filter(Selection.cid == clazz.cid).all()
@@ -302,6 +302,7 @@ class ExportHandler(BaseHandler):
                            user.schoolnum   + ',' + \
                            user.cardnum     + ',' + \
                            user.name        + ',' + \
+                           user.phone       + ',' + \
                            selection.time   + '\n'
 
         self.set_header('Content-Type', 'text/csv')
