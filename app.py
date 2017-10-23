@@ -104,7 +104,7 @@ class LoginHandler(BaseHandler):
             })
         except:
             self.db.rollback()
-            self.finish_err(401, u'一卡通号或学号不正确')
+            self.finish_err(401, u'用户不存在或不是经济困难生，请重试')
 
     # 添加用户
     def put(self):
