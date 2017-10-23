@@ -128,7 +128,6 @@ class ClassSelectHandler(BaseHandler):
 
     group_groups = None
     groups = dict()
-    classes = dict()
 
     @property
     def user_info(self):
@@ -165,9 +164,7 @@ class ClassSelectHandler(BaseHandler):
                 ClassSelectHandler.groups[group_group.ggid] = groups
 
                 for group in groups:
-                    classes = ClassSelectHandler.classes[group.gid] if group.gid in ClassSelectHandler.classes \
-                        else self.db.query(Class).filter(Class.gid == group.gid).all()
-                    ClassSelectHandler.classes[group.gid] = classes
+                    classes = self.db.query(Class).filter(Class.gid == group.gid).all()
 
                     group_json = {
                         'gid': group.gid,
