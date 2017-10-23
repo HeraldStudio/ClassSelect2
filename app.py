@@ -190,6 +190,7 @@ class ClassSelectHandler(BaseHandler):
             self.db.rollback()
             self.finish_err(500, u'获取课程列表失败')
 
+    @run_on_executor
     def post(self):
         # 取课程参数
         cid = int(self.get_argument('cid'))
