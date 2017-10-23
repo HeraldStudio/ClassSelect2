@@ -104,7 +104,7 @@ class LoginHandler(BaseHandler):
             })
         except:
             self.db.rollback()
-            self.finish_err(401, u'用户不存在或不是经济困难生，请重试')
+            self.finish_err(401, u'用户不存在或不在经济困难生名单内，请重试')
 
     # 添加用户
     def put(self):
