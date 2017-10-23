@@ -250,8 +250,16 @@ class ClassSelectHandler(BaseHandler):
         # 再次判断该课是否满员，并同时加锁
         count = self.db.query(Selection).filter(Selection.cid == clazz.cid).with_lockmode("update").count()
         if 0 < clazz.capacity <= count:
-            self.finish_err(409, u'课程名额已满')
             self.db.rollback()
+            self.finish_err(409, u'课程名额已满')
+            return
+
+        # 再次获取该课程，并同时加锁
+        try:
+            clazz = self.db.query(Class).filter(Class.cid == cid).with_lockmode("update").one()
+        except:
+            self.db.rollback()
+            self.finish_err(404, u'课程不存在')
             return
 
         # 进行选课
@@ -298,6 +306,14 @@ class ClassSelectHandler(BaseHandler):
         sel = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).one_or_none()
         if not sel:
             self.finish_err(404, u'未选择该课程！')
+            return
+
+        # 再次获取该课程，并同时加锁
+        try:
+            clazz = self.db.query(Class).filter(Class.cid == cid).with_lockmode("update").one()
+        except:
+            self.db.rollback()
+            self.finish_err(404, u'课程不存在')
             return
 
         # 取消选课
