@@ -1,6 +1,5 @@
 import asyncio
 import json
-import traceback
 from concurrent.futures import ThreadPoolExecutor
 from uuid import uuid4
 
@@ -42,7 +41,7 @@ class BaseHandler(RequestHandler):
         self.db.close()
 
     def write_json(self, trunk):
-        self.write(json.dumps(trunk, ensure_ascii=False))
+        self.write(json.dumps(trunk))
 
     def finish_success(self, trunk):
         self.write_json ({
