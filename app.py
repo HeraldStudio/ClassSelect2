@@ -247,29 +247,29 @@ class ClassSelectHandler(BaseHandler):
             self.finish_err(409, u'[' + group_group.name + u'] 大类内最多选择 ' + str(group_group.max_select) + u' 个方向的课程，请先退选不需要的课程！')
             return
 
-        # 再次判断该课是否满员，并同时加锁
-        count = self.db.query(Selection).filter(Selection.cid == clazz.cid).with_lockmode("update").count()
-        if 0 < clazz.capacity <= count:
-            self.db.rollback()
-            self.finish_err(409, u'课程名额已满')
-            return
-
-        # 再次获取该课程，并同时加锁
-        try:
-            clazz = self.db.query(Class).filter(Class.cid == cid).with_lockmode("update").one()
-        except:
-            self.db.rollback()
-            self.finish_err(404, u'课程不存在')
-            return
-
         # 进行选课
         try:
-            clazz.selection_count += 1
-            self.db.commit()
+            # 再次判断该课是否满员，并同时加锁
+            count = self.db.query(Selection).filter(Selection.cid == clazz.cid).with_lockmode("update").count()
+            if 0 < clazz.capacity <= count:
+                self.db.rollback()
+                self.finish_err(409, u'课程名额已满')
+                return
 
             t = time.strftime('%Y-%m-%d %X', time.localtime(time.time()))
             sel = Selection(uid=user.uid, cid=clazz.cid, gid=clazz.gid, ggid=group.ggid, time=t)
             self.db.add(sel)
+
+            # 再次获取该课程，并同时加锁
+            try:
+                clazz = self.db.query(Class).filter(Class.cid == cid).with_lockmode("update").one()
+            except:
+                self.db.rollback()
+                self.finish_err(404, u'课程不存在')
+                return
+
+            clazz.selection_count += 1
+            self.db.commit()
 
             # 保存日志
             log = Log(uid=user.uid, cid=clazz.cid, operation='select', time=t)
