@@ -264,11 +264,12 @@ class ClassSelectHandler(BaseHandler):
 
         # 进行选课
         try:
+            clazz.selection_count += 1
+            self.db.commit()
+
             t = time.strftime('%Y-%m-%d %X', time.localtime(time.time()))
             sel = Selection(uid=user.uid, cid=clazz.cid, gid=clazz.gid, ggid=group.ggid, time=t)
             self.db.add(sel)
-
-            clazz.selection_count += 1
 
             # 保存日志
             log = Log(uid=user.uid, cid=clazz.cid, operation='select', time=t)
