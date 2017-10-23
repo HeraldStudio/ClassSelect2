@@ -23,6 +23,7 @@ class Class(Base):
     desc = Column(String(1024), nullable=False)
     pic = Column(String(1024), nullable=False)
     capacity = Column(Integer, nullable=False)
+    selection_count = Column(Integer, nullable=False)
 
 class ClassGroup(Base):
     __tablename__ = 'class_group'

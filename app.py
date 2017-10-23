@@ -179,7 +179,7 @@ class ClassSelectHandler(BaseHandler):
                             'desc': clazz.desc,
                             'pic': clazz.pic,
                             'capacity': clazz.capacity,
-                            'count': self.db.query(Selection).filter(Selection.cid == clazz.cid).count(),
+                            'count': clazz.selection_count,
                             'selected': self.db.query(Selection).filter(Selection.cid == clazz.cid, Selection.uid == user.uid).count() > 0
                         } for clazz in classes]
                     }
@@ -255,6 +255,8 @@ class ClassSelectHandler(BaseHandler):
             sel = Selection(uid=user.uid, cid=clazz.cid, gid=clazz.gid, ggid=group.ggid, time=t)
             self.db.add(sel)
 
+            clazz.selection_count += 1
+
             # 保存日志
             log = Log(uid=user.uid, cid=clazz.cid, operation='select', time=t)
             self.db.add(log)
@@ -296,6 +298,7 @@ class ClassSelectHandler(BaseHandler):
         # 取消选课
         try:
             self.db.delete(sel)
+            clazz.selection_count -= 1
 
             # 保存日志
             t = time.strftime('%Y-%m-%d %X', time.localtime(time.time()))
