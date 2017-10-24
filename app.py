@@ -1,26 +1,20 @@
-import asyncio
 import json
-from concurrent.futures import ThreadPoolExecutor
-from uuid import uuid4
-
-from tornado.concurrent import run_on_executor
-
-from config import isOpen
-
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
+from uuid import uuid4
 
 import tornado
 import tornado.ioloop
 import tornado.options
 import tornado.web
-from tornado.platform.asyncio import AsyncIOMainLoop
 from sqlalchemy.orm import scoped_session, sessionmaker
+from tornado.concurrent import run_on_executor
 from tornado.options import define, options
 from tornado.web import RequestHandler
 
+from config import isOpen
 from db import User, ClassGroupGroup, ClassGroup, Class, Selection, Log, engine
-
 
 phone_re = re.compile(r'^1\d{10}$')
 
@@ -354,13 +348,7 @@ class Application(tornado.web.Application):
         self.db = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=True, expire_on_commit=False))
 
 
-async def app():
-    Application().listen(options.port)
-
-
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    AsyncIOMainLoop().install()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(app())
-    loop.run_forever()
+    Application().listen(options.port)
+    tornado.ioloop.IOLoop.instance().start()
