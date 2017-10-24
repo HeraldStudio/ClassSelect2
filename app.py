@@ -269,6 +269,14 @@ class ClassSelectHandler(BaseHandler):
 
         # 进行选课
         try:
+
+            # 再次判断用户是否选过该课
+            count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).count()
+            if count > 0:
+                self.finish_err(409, u'该课程已经选择！')
+                self.db.rollback()
+                return
+
             t = time.strftime('%Y-%m-%d %X', time.localtime(time.time()))
             sel = Selection(uid=user.uid, cid=clazz.cid, gid=clazz.gid, ggid=group.ggid, time=t)
             self.db.add(sel)
@@ -357,7 +365,7 @@ class ExportHandler(BaseHandler):
                            selection.time   + '\n'
 
         self.set_header('Content-Type', 'text/csv')
-        self.write(csv.encode('gbk'))
+        self.write(csv.encode('utf-8'))
         self.finish()
 
 

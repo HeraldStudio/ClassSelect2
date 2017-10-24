@@ -1,4 +1,4 @@
-DB_HOST = '127.0.0.1'
+DB_HOST = '139.129.4.219'
 DB_USER = 'class_select'
 DB_PWD = 'fjo@jio@xzm@wjq'
 DB_NAME = 'class_selection'
