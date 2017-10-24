@@ -269,7 +269,6 @@ class ClassSelectHandler(BaseHandler):
 
         # 进行选课
         try:
-
             # 再次判断用户是否选过该课
             count = self.db.query(Selection).filter(Selection.uid == user.uid, Selection.cid == cid).count()
             if count > 0:

@@ -11,7 +11,7 @@ def isOpen():
     global open
     if open == True:
         return True
-    open = strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-24 13:00'
+    open = strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-25 13:00'
     return open
 
 closed = False
@@ -20,5 +20,5 @@ def isClosed():
     global closed
     if closed == True:
         return True
-    closed = strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-24 14:00'
+    closed = strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-25 14:00'
     return closed
