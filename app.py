@@ -1,3 +1,4 @@
+import asyncio
 import json
 import re
 import time
@@ -11,6 +12,7 @@ import tornado.web
 from sqlalchemy.orm import scoped_session, sessionmaker
 from tornado.concurrent import run_on_executor
 from tornado.options import define, options
+from tornado.platform.asyncio import AsyncIOMainLoop
 from tornado.web import RequestHandler
 
 from config import isOpen
@@ -348,7 +350,13 @@ class Application(tornado.web.Application):
         self.db = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=True, expire_on_commit=False))
 
 
+async def app():
+    Application().listen(options.port)
+
+
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    Application().listen(options.port)
-    tornado.ioloop.IOLoop.instance().start()
+    AsyncIOMainLoop().install()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(app())
+    loop.run_forever()
