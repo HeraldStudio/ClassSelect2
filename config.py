@@ -5,5 +5,11 @@ DB_NAME = 'class_selection'
 
 from time import time, localtime, strftime
 
+open = False
+
 def isOpen():
-    return strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-24 13:00'
+    global open
+    if open == True:
+        return True
+    open = strftime('%Y-%m-%d %X', localtime(time())) >= '2017-10-24 13:00'
+    return open
