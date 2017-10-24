@@ -69,7 +69,7 @@ class LoginHandler(BaseHandler):
     @run_on_executor
     def post(self):
         if isClosed():
-            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            self.finish_err(404, u'选课已结束，具体开课信息请留意东南大学学生事务服务中心微信推送！')
             return
 
         if not isOpen():
@@ -136,7 +136,7 @@ class ClassSelectHandler(BaseHandler):
     @run_on_executor
     def get(self):
         if isClosed():
-            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            self.finish_err(404, u'选课已结束，具体开课信息请留意东南大学学生事务服务中心微信推送！')
             return
 
         if not isOpen():
@@ -198,7 +198,7 @@ class ClassSelectHandler(BaseHandler):
     @run_on_executor
     def post(self):
         if isClosed():
-            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            self.finish_err(404, u'选课已结束，具体开课信息请留意东南大学学生事务服务中心微信推送！')
             return
 
         if not isOpen():
@@ -288,7 +288,7 @@ class ClassSelectHandler(BaseHandler):
     @run_on_executor
     def delete(self):
         if isClosed():
-            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            self.finish_err(404, u'选课已结束，具体开课信息请留意东南大学学生事务服务中心微信推送！')
             return
 
         if not isOpen():
