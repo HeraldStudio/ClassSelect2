@@ -13,7 +13,7 @@ from tornado.concurrent import run_on_executor
 from tornado.options import define, options
 from tornado.web import RequestHandler
 
-from config import isOpen
+from config import isOpen, isClosed
 from db import User, ClassGroupGroup, ClassGroup, Class, Selection, Log, engine
 
 phone_re = re.compile(r'^1\d{10}$')
@@ -68,6 +68,10 @@ class LoginHandler(BaseHandler):
     # 用户登录
     @run_on_executor
     def post(self):
+        if isClosed():
+            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            return
+
         if not isOpen():
             self.finish_err(404, u'选课尚未开放')
             return
@@ -131,6 +135,13 @@ class ClassSelectHandler(BaseHandler):
     # 列举课程
     @run_on_executor
     def get(self):
+        if isClosed():
+            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            return
+
+        if not isOpen():
+            self.finish_err(404, u'选课尚未开放')
+            return
 
         try:
             # 取用户登录信息
@@ -186,6 +197,14 @@ class ClassSelectHandler(BaseHandler):
 
     @run_on_executor
     def post(self):
+        if isClosed():
+            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            return
+
+        if not isOpen():
+            self.finish_err(404, u'选课尚未开放')
+            return
+
         # 取课程参数
         cid = int(self.get_argument('cid'))
 
@@ -268,6 +287,14 @@ class ClassSelectHandler(BaseHandler):
 
     @run_on_executor
     def delete(self):
+        if isClosed():
+            self.finish_err(404, u'选课已结束，感谢您的参与！')
+            return
+
+        if not isOpen():
+            self.finish_err(404, u'选课尚未开放')
+            return
+
         # 取课程参数
         cid = int(self.get_argument('cid'))
 
