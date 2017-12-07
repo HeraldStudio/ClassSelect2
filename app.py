@@ -1,7 +1,6 @@
 import json
 import re
 import time
-import traceback
 from concurrent.futures import ThreadPoolExecutor
 from uuid import uuid4
 
@@ -101,8 +100,7 @@ class LoginHandler(BaseHandler):
                 'token': token,
                 'username': user.name
             })
-        except Exception as e:
-            traceback.print_exc(e)
+        except:
             self.db.rollback()
             self.finish_err(401, u'用户不存在或不在经济困难生名单内，请重试')
 
