@@ -1,2 +1,12 @@
-.DS_Store
+node_modules/
+package-lock.json
+yarn.lock
 .idea/
+.DS_Store
+*~
+!.gitkeep
+**/*.db
+*.swp
+yarn-error.log
+logs/*.log
+data.json

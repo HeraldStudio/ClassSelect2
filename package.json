@@ -1,0 +1,28 @@
+{
+  "name": "classselect2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HeraldStudio/ClassSelect2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HeraldStudio/ClassSelect2/issues"
+  },
+  "homepage": "https://github.com/HeraldStudio/ClassSelect2#readme",
+  "dependencies": {
+    "await-semaphore": "^0.1.3",
+    "chalk": "^2.3.2",
+    "kcors": "^2.2.1",
+    "kf-router": "^1.2.5",
+    "koa": "^2.5.0",
+    "koa-bodyparser": "^4.2.0",
+    "sqlongo": "^1.1.4"
+  }
+}
