@@ -16,11 +16,11 @@ exports.route = {
       this.throw(401, '由于上学期出勤率不达标，你已进入黑名单，本学期不允许参加金钥匙计划。如有疑问，请咨询学生资助中心。')
     }
     let user = data.users[cardnum]
-    if (user.schoolnum !== schoolnum) {
-      this.throw(401, '用户信息不匹配，请重试')
-    }
     if (!user) {
       this.throw(401, '用户不存在或不在经济困难生名单内，请重试')
+    }
+    if (user.schoolnum !== schoolnum) {
+      this.throw(401, '用户信息不匹配，请重试')
     }
     let dbuser = await db.user.find({ cardnum }, 1)
     if (phone) {
