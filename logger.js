@@ -25,7 +25,7 @@ module.exports = async (ctx, next) => {
       ' | ' + ctx.body.code +
       ' ' + ctx.method +
       ' ' + ctx.path +
-      ' ' + JSON.stringify(ctx.request.body) +
+      ' ' + JSON.stringify(ctx.params) +
       ' ' + duration + 'ms'
       + '\n'
     )
