@@ -3,7 +3,7 @@
 
   代替 koa 的日志中间件，为了解析 return.js 中间件返回的 JSON 状态码，并且为了好看。
  */
-const logfile = require('fs').createWriteStream(`logs/${Date.now()}.log`, {flags: 'w'})
+const logfile = require('fs').createWriteStream('log', {flags: 'w'})
 
 module.exports = async (ctx, next) => {
   let begin = new Date()
