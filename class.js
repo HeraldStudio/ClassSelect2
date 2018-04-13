@@ -5,11 +5,16 @@ const mutex = new Mutex()
 const data = require('./data.json')
 
 const composedClassList = data.groupGroups.map((gg, ggid) => {
-  gg.groups = data.groups.filter(k => k.ggid === ggid).map((g, gid) => {
+  gg.groups = data.groups.map((k, gid) => {
+    k.gid = gid
+    return k
+  }).filter(k => {
+    return k.ggid === ggid
+  }).map(g => {
     g.classes = data.classes.map((c, cid) => {
       c.cid = cid
       return c
-    }).filter(c => c.gid === gid)
+    }).filter(c => c.gid === g.gid)
     return g
   })
   return gg
