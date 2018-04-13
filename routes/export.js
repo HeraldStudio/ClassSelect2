@@ -1,5 +1,5 @@
-const db = require('./db')
-const data = require('./data.json')
+const db = require('../db')
+const data = require('../data.json')
 
 exports.route = {
   async get() {

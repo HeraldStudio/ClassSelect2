@@ -30,9 +30,6 @@ app.use(async (ctx, next) => {
     }
   }
 })
-app.use(kf(module, {
-  ignore: ['db', 'control', 'app', 'logger'],
-  verbose: false
-}))
+app.use(kf())
 app.listen(8087)
 control.start()

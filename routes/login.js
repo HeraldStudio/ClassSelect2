@@ -1,6 +1,6 @@
-const control = require('./control')
-const db = require('./db')
-const data = require('./data.json')
+const control = require('../control')
+const db = require('../db')
+const data = require('../data.json')
 const crypto = require('crypto')
 
 exports.route = {

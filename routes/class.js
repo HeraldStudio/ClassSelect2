@@ -1,8 +1,8 @@
-const control = require('./control')
-const db = require('./db')
+const control = require('../control')
+const db = require('../db')
 const { Mutex } = require('await-semaphore')
 const mutex = new Mutex()
-const data = require('./data.json')
+const data = require('../data.json')
 
 const composedClassList = data.groupGroups.map((gg, ggid) => {
   gg.groups = data.groups.map((k, gid) => {
