@@ -12,3 +12,4 @@ logs/*.log
 data.json
 db_secret.json
 db-secret.json
+log
