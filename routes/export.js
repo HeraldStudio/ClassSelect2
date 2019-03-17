@@ -1,4 +1,5 @@
-const db = require('../db')
+//const db = require('../db')
+const mongodb = require('../mongodb')
 const data = require('../data.json')
 
 exports.route = {
@@ -10,11 +11,19 @@ exports.route = {
     return '课程号,课程,学号,一卡通号,姓名,手机,选课时间\n\n' +
       (await Promise.all(data.classes.map(async (c, cid) => {
         let { name: className } = c
-        return (await Promise.all((await db.selection.find({ cid: c.cid })).map(async s => {
-          let { cardnum, phone } = await db.user.find({ cardnum: s.cardnum }, 1)
+        let userCollection = await mongodb('user')
+        let selectionCollection = await mongodb('selection')
+        // return (await Promise.all((await db.selection.find({ cid: c.cid })).map(async s => {
+        //   let { cardnum, phone } = await db.user.find({ cardnum: s.cardnum }, 1)
+        //   let { schoolnum, name } = data.users[cardnum]
+        //   let time = new Date(s.time).toLocaleString()
+        //   return [cid, className, schoolnum, cardnum, name, phone, time].join(',')
+        // }))).join('\n')
+        return (await Promise.all((await selectionCollection.find({ cid: c.cid }).toArray()).map(async s => {
+          let { cardnum, phone, qq } = await userCollection.findOne({ cardnum: s.cardnum })
           let { schoolnum, name } = data.users[cardnum]
           let time = new Date(s.time).toLocaleString()
-          return [cid, className, schoolnum, cardnum, name, phone, time].join(',')
+          return [cid, className, schoolnum, cardnum, name, phone, time, qq].join(',')
         }))).join('\n')
       }))).join('\n')
   }

@@ -1,4 +1,4 @@
-const db = require('sqlongo')('database')
+const db = {}
 
 db.user = {
   token: 'text primary key',

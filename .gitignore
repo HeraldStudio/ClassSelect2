@@ -10,3 +10,5 @@ yarn.lock
 yarn-error.log
 logs/*.log
 data.json
+db_secret.json
+db-secret.json

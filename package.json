@@ -23,6 +23,7 @@
     "kf-router": "^2.1.1",
     "koa": "^2.5.0",
     "koa-bodyparser": "^4.2.0",
-    "sqlongo": "^1.1.4"
+    "moment": "^2.24.0",
+    "mongodb": "^3.1.13"
   }
 }

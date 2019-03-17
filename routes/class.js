@@ -1,8 +1,32 @@
 const control = require('../control')
 const db = require('../db')
+const mongodb = require('../mongodb')
 const { Mutex } = require('await-semaphore')
 const mutex = new Mutex()
 const data = require('../data.json')
+const moment = require('moment')
+
+const overlap = (allClazz, cid) => {
+  let clazz = data.classes[cid]
+  allClazz.forEach((selected) => {
+    if(clazz.weekday === selected.weekday){
+      let selectedStartTime = +moment(selected.startTime, "HH:mm")
+      let selectedEndTime = +moment(selected.endTime, "HH:mm")
+      let clazzStartTime = +moment(clazz.startTime, "HH:mm")
+      let clazzEndTime = +moment(clazz.endTime, "HH:mm")
+      if(selectedStartTime < clazzStartTime){
+        if(selectedEndTime > clazzStartTime) {
+          return true
+        }
+      } else {
+        if(selectedStartTime < clazzEndTime) {
+          return true
+        }
+      }
+    }
+  })
+  return false
+}
 
 const composedClassList = data.groupGroups.map((gg, ggid) => {
   gg.groups = data.groups.map((k, gid) => {
@@ -21,10 +45,12 @@ const composedClassList = data.groupGroups.map((gg, ggid) => {
 })
 
 const userInfo = async (ctx) => {
+  let userCollection = await mongodb('user')
   if (!ctx.params.token) {
     ctx.throw(401, '需要登录')
   }
-  let user = await db.user.find({ token: ctx.params.token }, 1)
+  //let user = await db.user.find({ token: ctx.params.token }, 1)
+  let user = await userCollection.findOne({ token: ctx.params.token })
   if (!user) {
     ctx.throw(403, '登录无效或已过期，请重新登录')
   }
@@ -40,11 +66,14 @@ exports.route = {
       this.throw(404, '选课尚未开放')
     }
     let user = await userInfo(this)
+    let selectionCollection = await mongodb('selection')
     return await Promise.all(composedClassList.map(async gg => {
       gg.groups = await Promise.all(gg.groups.map(async g => {
         g.classes = await Promise.all(g.classes.map(async c => {
-          c.count = await db.selection.count('*', { cid: c.cid })
-          c.selected = await db.selection.count('*', { cid: c.cid, cardnum: user.cardnum }) > 0
+          c.count = await selectionCollection.countDocuments({ cid: c.cid })
+          c.selected = await selectionCollection.countDocuments({ cid: c.cid, cardnum: user.cardnum }) > 0
+          //c.count = await db.selection.count('*', { cid: c.cid })
+          //c.selected = await db.selection.count('*', { cid: c.cid, cardnum: user.cardnum }) > 0
           return c
         }))
         return g
@@ -60,7 +89,7 @@ exports.route = {
     if (control.state === 0) {
       this.throw(404, '选课尚未开放')
     }
-
+    let selectionCollection = await mongodb('selection')
     let { cid } = this.params
     let user = await userInfo(this)
     let clazz = data.classes[cid]
@@ -69,12 +98,14 @@ exports.route = {
     }
 
     await mutex.use(async () => {
-      let selected = await db.selection.find({ cardnum: user.cardnum, cid }, 1)
+      //let selected = await db.selection.find({ cardnum: user.cardnum, cid }, 1)
+      let selected = await selectionCollection.findOne({ cardnum: user.cardnum, cid })
       if (selected) {
         this.throw(409, '该课程已经选择！')
       }
       if (clazz.capacity > 0) {
-        let count = await db.selection.count('*', { cid })
+        let count = await selectionCollection.countDocuments({ cid })
+        //let count = await db.selection.count('*', { cid })
         if (count >= clazz.capacity) {
           this.throw(409, '课程名额已满')
         }
@@ -85,7 +116,8 @@ exports.route = {
         this.throw(404, '课程方向不存在')
       }
       if (group.maxSelect > 0) {
-        let count = await db.selection.count('*', { cardnum: user.cardnum, gid: clazz.gid })
+        let count = await selectionCollection.count({ cardnum: user.cardnum, gid: clazz.gid })
+        //let count = await db.selection.count('*', { cardnum: user.cardnum, gid: clazz.gid })
         if (count >= group.maxSelect) {
           this.throw(409, `${group.name}内最多选择 ${group.maxSelect} 门课程，请先退选不需要的课程！`)
         }
@@ -95,21 +127,39 @@ exports.route = {
       if (!groupGroup) {
         this.throw(404, '课程大类不存在')
       }
+
       if (groupGroup.maxSelect > 0) {
-        let count = await db.selection.count('gid', { cardnum: user.cardnum, ggid: group.ggid })
+        let count = (await selectionCollection.distinct('gid', { cardnum: user.cardnum, ggid: group.ggid })).length
+        //let count = await db.selection.count('gid', { cardnum: user.cardnum, ggid: group.ggid })
         if (count >= groupGroup.maxSelect) {
           this.throw(409, `${groupGroup.name}内最多选择 ${group.maxSelect} 个方向的课程，请先退选不需要的课程！`)
         }
       }
 
+      let allClazz = await selectionCollection.find({cardnum: user.cardnum}).toArray()// 列出所有已选课程
+      if(overlap(allClazz, cid)){
+        this.throw(409, '选课时间存在冲突，请先退选时间冲突课程')
+      }
+
       let now = Date.now()
 
-      await db.selection.insert({
+      // await db.selection.insert({
+      //   cardnum: user.cardnum,
+      //   cid: cid,
+      //   gid: clazz.gid,
+      //   ggid: group.ggid,
+      //   time: now
+      // })
+
+      await selectionCollection.insertOne({
         cardnum: user.cardnum,
         cid: cid,
         gid: clazz.gid,
         ggid: group.ggid,
-        time: now
+        time: now,
+        weekday: clazz.weekday,
+        startTime: clazz.startTime,
+        endTime: clazz.endTime
       })
     })
 
@@ -124,16 +174,19 @@ exports.route = {
       this.throw(404, '选课尚未开放')
     }
 
+    let selectionCollection = await mongodb('selection')
     let { cid } = this.params
     let user = await userInfo(this)
 
     await mutex.use(async () => {
-      let sel = await db.selection.find({ cardnum: user.cardnum, cid }, 1)
+      let sel = await selectionCollection.findOne({ cardnum: user.cardnum, cid })
+      //let sel = await db.selection.find({ cardnum: user.cardnum, cid }, 1)
       if (!sel) {
         this.throw(404, '未选择该课程！')
       }
 
-      await db.selection.remove({ cardnum: user.cardnum, cid })
+      await selectionCollection.deleteMany({ cardnum: user.cardnum, cid })
+      // await db.selection.remove({ cardnum: user.cardnum, cid })
     })
 
     return '取消课程成功'
