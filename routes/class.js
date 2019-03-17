@@ -8,6 +8,7 @@ const moment = require('moment')
 
 const overlap = (allClazz, cid) => {
   let clazz = data.classes[cid]
+  let flag = false
   allClazz.forEach((selected) => {
     if(clazz.weekday === selected.weekday){
       let selectedStartTime = +moment(selected.startTime, "HH:mm")
@@ -16,16 +17,16 @@ const overlap = (allClazz, cid) => {
       let clazzEndTime = +moment(clazz.endTime, "HH:mm")
       if(selectedStartTime < clazzStartTime){
         if(selectedEndTime > clazzStartTime) {
-          return true
+          flag = true
         }
       } else {
         if(selectedStartTime < clazzEndTime) {
-          return true
+          flag = true
         }
       }
     }
   })
-  return false
+  return flag
 }
 
 const composedClassList = data.groupGroups.map((gg, ggid) => {
@@ -71,7 +72,7 @@ exports.route = {
       gg.groups = await Promise.all(gg.groups.map(async g => {
         g.classes = await Promise.all(g.classes.map(async c => {
           c.count = await selectionCollection.countDocuments({ cid: c.cid })
-          c.selected = await selectionCollection.countDocuments({ cid: c.cid, cardnum: user.cardnum }) > 0
+          c.selected = (await selectionCollection.countDocuments({ cid: c.cid, cardnum: user.cardnum })) > 0
           //c.count = await db.selection.count('*', { cid: c.cid })
           //c.selected = await db.selection.count('*', { cid: c.cid, cardnum: user.cardnum }) > 0
           return c
@@ -91,6 +92,7 @@ exports.route = {
     }
     let selectionCollection = await mongodb('selection')
     let { cid } = this.params
+    cid = parseInt(cid)
     let user = await userInfo(this)
     let clazz = data.classes[cid]
     if (!clazz) {
@@ -116,7 +118,7 @@ exports.route = {
         this.throw(404, '课程方向不存在')
       }
       if (group.maxSelect > 0) {
-        let count = await selectionCollection.count({ cardnum: user.cardnum, gid: clazz.gid })
+        let count = await selectionCollection.countDocuments({ cardnum: user.cardnum, gid: clazz.gid })
         //let count = await db.selection.count('*', { cardnum: user.cardnum, gid: clazz.gid })
         if (count >= group.maxSelect) {
           this.throw(409, `${group.name}内最多选择 ${group.maxSelect} 门课程，请先退选不需要的课程！`)
@@ -176,6 +178,7 @@ exports.route = {
 
     let selectionCollection = await mongodb('selection')
     let { cid } = this.params
+    cid = parseInt(cid)
     let user = await userInfo(this)
 
     await mutex.use(async () => {
