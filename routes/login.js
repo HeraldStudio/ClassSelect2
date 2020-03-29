@@ -12,10 +12,12 @@ exports.route = {
       this.throw(404, '选课尚未开放')
     }
     let { cardnum, schoolnum, phone = '', qq='' } = this.params
+
     if (data.blacklists[cardnum]) {
       this.throw(401, '由于上学期出勤率不达标，你已进入黑名单，本学期不允许参加金钥匙计划。如有疑问，请咨询学生资助中心。')
     }
-    if (data.select[cardnum]) {
+    if (data.selectTwo[cardnum]) {
+      // 说明一下这里只是对于兑换了两门课的学生说的
       this.throw(401, '已有预先兑换课程，不参加本轮选课。如有疑问，请咨询学生资助中心。')
     }
     let user = data.users[cardnum]
@@ -25,6 +27,7 @@ exports.route = {
     if (user.schoolnum !== schoolnum) {
       this.throw(401, '用户信息不匹配，请重试')
     }
+ 
     //let dbuser = await db.user.find({ cardnum }, 1)
     let userCollection = await mongodb('user')
     let dbuser = await userCollection.findOne({ cardnum })
@@ -39,6 +42,7 @@ exports.route = {
       this.throw(401, '首次登录，请填写手机号码')
     }
 
+
     if (qq) {
       // 就是正常的
     } else if (dbuser && dbuser.qq) {
@@ -46,6 +50,7 @@ exports.route = {
     } else {
       this.throw(401, '首次登录，请填写QQ号码')
     }
+
 
     let token = new Buffer(crypto.randomBytes(16)).toString('hex')
     if (dbuser) {
@@ -55,6 +60,7 @@ exports.route = {
       //await db.user.insert({ cardnum, token, phone })
       await userCollection.insertOne({ cardnum, token, phone, qq })
     }
+
 
     return {
       token, username: user.name

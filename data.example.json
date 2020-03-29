@@ -8,21 +8,29 @@
     { "name": "技能培训类", "maxSelect": 1, "ggid": 0 }
   ],
   "classes": [
-    { "name": "吉他初级班", "desc": "10人×1个班", "capacity": 10, "gid": 0 },
-    { "name": "素描初级班", "desc": "10人×1个班", "capacity": 10, "gid": 0 },
-    { "name": "书法班", "desc": "15人×1个班", "capacity": 15, "gid": 0 },
-    { "name": "英语口语初级班", "desc": "10人×4个班", "capacity": 40, "gid": 1 },
-    { "name": "英语听力四级辅导班", "desc": "20人×1个班", "capacity": 20, "gid": 1 },
-    { "name": "英语听力六级辅导班", "desc": "20人×1个班", "capacity": 20, "gid": 1 },
-    { "name": "Office 高级班", "desc": "60人×1个班", "capacity": 60, "gid": 2 },
-    { "name": "Photoshop 初级班", "desc": "60人×1个班", "capacity": 60, "gid": 2 },
-    { "name": "视频软件初级班", "desc": "60人×1个班", "capacity": 60, "gid": 2 },
-    { "name": "演讲班", "desc": "20人×1个班", "capacity": 20, "gid": 2 }
+    { "name": "吉他初级班", "desc": "10人×1个班", "capacity": 10, "gid": 0, "weekday":7, "startTime":"12:00", "endTime":"14:00" },
+    { "name": "素描初级班", "desc": "10人×1个班", "capacity": 10, "gid": 0, "weekday":7, "startTime":"13:00", "endTime":"14:00"  },
+    { "name": "书法班", "desc": "15人×1个班", "capacity": 15, "gid": 0 , "weekday":5, "startTime":"09:00", "endTime":"12:00" },
+    { "name": "英语口语初级班", "desc": "10人×4个班", "capacity": 40, "gid": 1, "weekday":1, "startTime":"08:00", "endTime":"09:00" },
+    { "name": "英语听力四级辅导班", "desc": "20人×1个班", "capacity": 20, "gid": 1, "weekday":2, "startTime":"08:00", "endTime":"09:00"},
+    { "name": "英语听力六级辅导班", "desc": "20人×1个班", "capacity": 20, "gid": 1, "weekday":3, "startTime":"08:00", "endTime":"09:00"},
+    { "name": "Office 高级班", "desc": "60人×1个班", "capacity": 60, "gid": 2, "weekday":4, "startTime":"10:00", "endTime":"12:00"},
+    { "name": "Photoshop 初级班", "desc": "60人×1个班", "capacity": 60, "gid": 2, "weekday":5, "startTime":"10:00", "endTime":"12:00" },
+    { "name": "视频软件初级班", "desc": "60人×1个班", "capacity": 60, "gid": 2, "weekday":6, "startTime":"10:00", "endTime":"12:00"},
+    { "name": "演讲班", "desc": "20人×1个班", "capacity": 20, "gid": 2, "weekday":2, "startTime":"12:00", "endTime":"13:00"}
   ],
   "users": {
-    "213151933": { "schoolnum": "09015425", "name": "测试账号" }
+    "213151933": { "schoolnum": "09015425", "name": "测试账号" },
+    "213171610": { "schoolnum": "06017419", "name": "开发者" }
   },
   "blacklists": {
     "213140000": true
+  },
+  "selectTwo":{
+
+  },
+  "selectOne":{
+    
   }
+}
 }

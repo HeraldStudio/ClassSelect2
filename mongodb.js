@@ -7,13 +7,14 @@ const authMechanism = 'DEFAULT';
 
 // Connection URL
 const url = `mongodb://${user}:${password}@${config.host}:${config.port}/jys?authMechanism=${authMechanism}`
+// console.log(url)
 let mongodb = null
 
 const getCollection = async(col) => {
   if (mongodb) {
     return mongodb.collection(col)
   } else {
-    mongodb = await MongoClient.connect(url, { useNewUrlParser: true })
+    mongodb = await MongoClient.connect(url, { useNewUrlParser: true , useUnifiedTopology: true })
     mongodb = mongodb.db("jys")
     return mongodb.collection(col)
   }

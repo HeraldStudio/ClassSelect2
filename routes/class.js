@@ -73,13 +73,17 @@ exports.route = {
         g.classes = await Promise.all(g.classes.map(async c => {
           c.count = await selectionCollection.countDocuments({ cid: c.cid })
           c.selected = (await selectionCollection.countDocuments({ cid: c.cid, cardnum: user.cardnum })) > 0
+          if(c.selected) {
+            let classDocument = await selectionCollection.findOne({ cid: c.cid, cardnum: user.cardnum })
+            c.canDelete = classDocument.canDelete
+          }
           //c.count = await db.selection.count('*', { cid: c.cid })
           //c.selected = await db.selection.count('*', { cid: c.cid, cardnum: user.cardnum }) > 0
           return c
         }))
         return g
       }))
-      return gg
+      return gg 
     }))
   },
 
@@ -161,7 +165,8 @@ exports.route = {
         time: now,
         weekday: clazz.weekday,
         startTime: clazz.startTime,
-        endTime: clazz.endTime
+        endTime: clazz.endTime,
+        canDelete: true,
       })
     })
 
