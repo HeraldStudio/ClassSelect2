@@ -141,7 +141,7 @@ exports.route = {
         let count = (await selectionCollection.distinct('gid', { cardnum: user.cardnum, ggid: group.ggid })).length
         //let count = await db.selection.count('gid', { cardnum: user.cardnum, ggid: group.ggid })
         if (count >= groupGroup.maxSelect) {
-          this.throw(409, `${groupGroup.name}内最多选择 ${group.maxSelect} 个方向的课程，请先退选不需要的课程！`)
+          this.throw(409, `${groupGroup.name}内最多选择 ${groupGroup.maxSelect} 个方向的课程，请先退选不需要的课程！`)
         }
       }
 
