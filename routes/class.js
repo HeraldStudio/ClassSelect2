@@ -94,10 +94,13 @@ exports.route = {
     if (control.state === 0) {
       this.throw(404, '选课尚未开放')
     }
+    let user = await userInfo(this)
+    if (user.cardnum === '101012413' ){
+      this.throw(404, '王老师不需要选课哦～')
+    }
     let selectionCollection = await mongodb('selection')
     let { cid } = this.params
     cid = parseInt(cid)
-    let user = await userInfo(this)
     let clazz = data.classes[cid]
     if (!clazz) {
       this.throw(404, '课程不存在')
