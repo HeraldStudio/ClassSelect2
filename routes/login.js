@@ -9,7 +9,7 @@ exports.route = {
       this.throw(404, '选课已结束，具体开课信息请留意东南大学学生事务服务中心微信推送！')
     }
     if (control.state === 0) {
-      this.throw(404, '选课尚未开始，请稍后！')
+      this.throw(404, '选课尚未开始')
     }
     let { cardnum, schoolnum, phone = '', qq='' } = this.params
 
