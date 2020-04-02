@@ -9,7 +9,7 @@ exports.start = () => {
     prompt: '> ',
     eval: (cmd, context, filename, callback) => {
       if (cmd.trim().toLowerCase() === 'start') {
-        exports.state = 0
+        exports.state = 1
         console.log('started')
       } else if (cmd.trim().toLowerCase() === 'stop') {
         exports.state = 0
