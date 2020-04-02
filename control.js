@@ -9,15 +9,12 @@ exports.start = () => {
     prompt: '> ',
     eval: (cmd, context, filename, callback) => {
       if (cmd.trim().toLowerCase() === 'start') {
-        exports.state = 1
+        exports.state = 0
         console.log('started')
       } else if (cmd.trim().toLowerCase() === 'stop') {
-        exports.state = 2
-        console.log('stopped')
-      } else if (cmd.trim().toLowerCase() === 'unready'){
         exports.state = 0
-        console.log('unready')
-      }
+        console.log('stopped')
+      } 
       else {
         console.log('invalid command')
       }
