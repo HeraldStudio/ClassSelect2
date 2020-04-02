@@ -14,7 +14,11 @@ exports.start = () => {
       } else if (cmd.trim().toLowerCase() === 'stop') {
         exports.state = 2
         console.log('stopped')
-      } else {
+      } else if (cmd.trim().toLowerCase() === 'unready'){
+        exports.state = 0
+        console.log('unready')
+      }
+      else {
         console.log('invalid command')
       }
       callback(null)
