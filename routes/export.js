@@ -20,6 +20,7 @@ exports.route = {
         //   return [cid, className, schoolnum, cardnum, name, phone, time].join(',')
         // }))).join('\n')
         return (await Promise.all((await selectionCollection.find({ cid: c.cid }).toArray()).map(async s => {
+          console.log(await userCollection.findOne({ cardnum: s.cardnum }))
           let { cardnum, phone, qq } = await userCollection.findOne({ cardnum: s.cardnum })
           let { schoolnum, name } = data.users[cardnum]
           let time = new Date(s.time).toLocaleString()
