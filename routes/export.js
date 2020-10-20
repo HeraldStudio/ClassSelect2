@@ -10,9 +10,7 @@ exports.route = {
     this.noTransform = true
     return '课程号,课程,学号,一卡通号,姓名,手机,选课时间\n\n' +
       (await Promise.all(data.classes.map(async (c, cid) => {
-        console.log(c)
         let { name: className } = c
-        console.log(name)
         let userCollection = await mongodb('user')
         let selectionCollection = await mongodb('selection')
         // return (await Promise.all((await db.selection.find({ cid: c.cid })).map(async s => {
