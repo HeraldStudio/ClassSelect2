@@ -22,13 +22,13 @@ exports.route = {
         return (await Promise.all((await selectionCollection.find({ cid: c.cid }).toArray()).map(async s => {
           try {
             let { cardnum, phone, qq } = await userCollection.findOne({ cardnum: s.cardnum })
+            let { schoolnum, name } = data.users[cardnum]
+            let time = new Date(s.time).toLocaleString()
+            let result = [cid, className, schoolnum, cardnum, name, phone, time, qq].join("','")
+            return `'${result}'`
           } catch (err) {
-            console.log(await userCollection.findOne({ cardnum: s.cardnum }))
+            return ``
           }
-          let { schoolnum, name } = data.users[cardnum]
-          let time = new Date(s.time).toLocaleString()
-          let result = [cid, className, schoolnum, cardnum, name, phone, time, qq].join("','")
-          return `'${result}'`
         }))).join('\n')
       }))).join('\n')
   }
